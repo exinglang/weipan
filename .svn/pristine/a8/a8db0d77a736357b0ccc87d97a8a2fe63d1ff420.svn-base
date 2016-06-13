@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <LinearLayout style="@style/home_three_ll">
+
+        <RelativeLayout style="@style/home_three_ll_rl">
+
+            <TextView
+                android:id="@+id/tv_11"
+                style="@style/home_three_ll_rl_tv_line_1"
+
+                android:text="@string/keyongzijin" />
+
+            <TextView
+                android:id="@+id/tv_12"
+                style="@style/home_three_ll_rl_tv_line_2"
+                android:layout_below="@id/tv_11"
+                android:text="0元" />
+
+            <Button
+                android:id="@+id/bt_chongzhi"
+                style="@style/home_three_ll_rl_bt_blue"
+                android:layout_below="@id/tv_12"
+                android:padding="3dp"
+                android:text="@string/chongzhi" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout style="@style/home_three_ll">
+
+        <RelativeLayout style="@style/home_three_ll_rl">
+
+            <TextView
+                android:id="@+id/tv_21"
+                style="@style/home_three_ll_rl_tv_line_1"
+
+                android:text="@string/dangqianchicang" />
+
+            <TextView
+                android:id="@+id/tv_22"
+                style="@style/home_three_ll_rl_tv_line_2"
+                android:layout_below="@id/tv_21"
+                android:text="0手" />
+
+            <Button
+                android:id="@+id/bt_pincang"
+
+                style="@style/home_three_ll_rl_bt_orange"
+                android:layout_below="@id/tv_22"
+
+                android:text="@string/pingcang" />
+        </RelativeLayout>
+
+    </LinearLayout>
+    <LinearLayout style="@style/home_three_ll">
+
+        <RelativeLayout style="@style/home_three_ll_rl">
+
+            <TextView
+                android:id="@+id/tv_31"
+                style="@style/home_three_ll_rl_tv_line_1"
+
+                android:text="@string/yonghujiangjin" />
+
+            <TextView
+                android:id="@+id/tv_32"
+                style="@style/home_three_ll_rl_tv_line_2"
+                android:layout_below="@id/tv_31"
+                android:text="0元" />
+
+            <Button
+                android:id="@+id/bt_jiangjin"
+
+                style="@style/home_three_ll_rl_bt_red"
+                android:layout_below="@id/tv_32"
+
+                android:text="@string/duihuan" />
+        </RelativeLayout>
+
+    </LinearLayout>
+</LinearLayout>

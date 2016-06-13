@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        style="@style/toolbar"
+        />
+
+    <ImageView
+        android:id="@+id/img_checkcode_moni"
+        android:layout_width="60dip"
+        android:layout_height="30dip" />
+
+    <EditText
+        android:id="@+id/et_checkcode_moni"
+        android:layout_width="100dip"
+        android:layout_height="wrap_content"
+
+        />
+
+    <ImageView
+        android:id="@+id/img_checkcode_shipan"
+        android:layout_width="60dip"
+        android:layout_height="30dip" />
+
+
+    <EditText
+        android:id="@+id/et_checkcode_shipan"
+        android:layout_width="100dip"
+        android:layout_height="wrap_content"
+
+        />
+
+    <Button
+        android:id="@+id/bt_login_moni"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="100dp"
+        android:text="仅登陆模拟盘" />
+
+
+    <Button
+        android:id="@+id/bt_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/home_bt_selector_orange"
+
+        android:text="同时登陆" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dip"
+        android:layout_marginTop="50dip"
+
+        android:text="sdfsdf" />
+</LinearLayout>

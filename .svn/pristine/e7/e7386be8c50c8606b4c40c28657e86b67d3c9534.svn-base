@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/mac/Documents/weipan/weipan/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/libs/internal_impl-23.0.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/internal_impl-23.0.1-a27c51226a8f1de61f60a3b7b44afccfac3bb056.jar" />
+    </item>
+    <item
+        jar="/Users/mac/Documents/weipan/weipan/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="c31e21b53ff2f74664e498248d01453a32e32d48">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/classes-ecfdeecbace64bfd1c2d05065106b1a19d74e260.jar" />
+    </item>
+    <item
+        jar="/Users/mac/Documents/weipan/weipan/app/build/intermediates/exploded-aar/com.android.support/design/22.2.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="fc63b820d54c8a27a3a614bdd93920e0076581c2">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/classes-2413052b2c4095ba79c74805f5b00cca0e55993f.jar" />
+    </item>
+    <item
+        jar="/Users/mac/Documents/weipan/weipan/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/classes-6eace7387f95223c12ee9c6b85bc98aa6b65a598.jar" />
+    </item>
+    <item
+        jar="/Users/mac/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.0.1/support-annotations-23.0.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="1fce89a6428c51467090d7f424e4c9c3dbd55f7e">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/support-annotations-23.0.1-47c2cb1d030fe59780ce01046a2a48167134339e.jar" />
+    </item>
+    <item
+        jar="/Users/mac/Documents/weipan/weipan/app/libs/universal-image-loader-1.9.2-SNAPSHOT-with-sources.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="e33324b770223932d467e4ec39639b0c15f3b94e">
+        <dex dex="/Users/mac/Documents/weipan/weipan/app/build/intermediates/pre-dexed/debug/universal-image-loader-1.9.2-SNAPSHOT-with-sources-24546e8fc224112c689e00b666fa3f403789b3d0.jar" />
+    </item>
+
+</items>

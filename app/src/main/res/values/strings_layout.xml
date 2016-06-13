@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">微盘</string>
+    <!--通用-->
+    <string name="default_number">0.0</string>
+    <string name="maizhang">买涨</string>
+    <string name="maidie">买跌</string>
+
+
+    <!--首页下面四个按钮-->
+    <string name="shouye">首页</string>
+    <string name="shipan">实盘</string>
+    <string name="monipan">模拟盘</string>
+    <string name="huodong">活动</string>
+    <string name="geren">个人</string>
+
+    <!--首页-->
+
+    <string name="keyongzijin">可用资金</string>
+    <string name="dangqianchicang">当前持仓</string>
+    <string name="yonghujiangjin">用户奖金</string>
+
+    <string name="chongzhi">充值</string>
+    <string name="pingcang">平仓</string>
+    <string name="kaihu">开户</string>
+    <string name="duihuan">兑换</string>
+    <!--实盘-->
+    <!--模拟盘-->
+    <string name="kaipanjia">开盘价</string>
+    <string name="zuigaojia">最高价</string>
+    <string name="zuidijia">最低价</string>
+    <string name="zhangdiefu">涨跌幅</string>
+    <string name="zhangdiee">涨跌额</string>
+    <string name="zuojiejia">昨结价</string>
+    <!--持仓明细-->
+    <string name="chicangjia">持仓价</string>
+    <string name="baozhenjin">保证金</string>
+    <string name="chiyouliang">持有量</string>
+    <string name="fudongyinkui">浮动盈亏</string>
+    <string name="zhisun">止损</string>
+    <string name="zhiyin">止盈</string>
+
+    <!--委托单-->
+    <string name="weituojia">委托价</string>
+    <string name="weituoshuliang">委托数量</string>
+    <string name="dongjiebaozhenjin">冻结保证金</string>
+    <string name="dongjieshouxufei">冻结手续费</string>
+    <!--成交-->
+    <string name="chengjiaojiage">成交价格</string>
+    <string name="chengjiaoshuliang">成交数量</string>
+    <string name="shouxufei">手续费</string>
+
+
+    <string name="yinhangmingchen">银行名称</string>
+    <string name="leixing">类型</string>
+    <string name="jine">金额</string>
+    <string name="zhuangtai">状态</string>
+    <string name="beizhu">备注</string>
+
+
+
+    <!--活动-->
+
+    <!--个人-->
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="kaihuxinxi">开户信息</string>
+    <string name="qianyuexinxi">签约信息</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--个人-资产信息-->
+    <string name="qichuquanyi">期初权益</string>
+    <string name="dangqianquanyi">当前权益</string>
+    <string name="dangrichurujin">当日出入金</string>
+    <string name="shishiyinkui">实时盈亏</string>
+    <string name="dangriyinkuiheji">当日盈亏合计</string>
+    <!--<string name="keyongzijin">可用资金</string>-->
+    <string name="dongjiezijin">冻结资金</string>
+    <string name="yijiaodinjin">已交订金</string>
+    <string name="dongjiedinjin">冻结定金</string>
+    <string name="dangrishouxufeiheji">当日手续费合计</string>
+    <!--<string name="dongjieshouxufei">冻结手续费</string>-->
+    <string name="fenxianlv">风险率</string>
+
+
+
+</resources>

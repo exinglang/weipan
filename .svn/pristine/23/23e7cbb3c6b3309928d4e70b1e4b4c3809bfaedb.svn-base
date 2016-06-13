@@ -1,0 +1,73 @@
+package com.puxtech.weipan.data;
+
+import android.content.Context;
+
+import com.puxtech.weipan.data.entitydata.AdPictureEntity;
+import com.puxtech.weipan.data.entitydata.OpenAccountInfoEntity;
+import com.puxtech.weipan.data.entitydata.ThirdPartyLoginEntity;
+import com.puxtech.weipan.data.entitydata.TradeAccountEntity;
+import com.puxtech.weipan.myapplication.PriceData;
+import com.puxtech.weipan.util.CustomException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Created by mac on 15/11/5.
+ */
+public class OpenAccountContractEntity {
+    OpenAccountInfoEntity openAccountInfoEntity;
+    ThirdPartyLoginEntity thirdPartyLoginEntity;
+    ArrayList<TradeAccountEntity> tradeAccountEntityArrayList;
+    ArrayList<AdPictureEntity> adPictureEntityArrayList;//轮播图片
+//
+    //    String OpenUrl;
+//    String WeiPanFrontUrl;
+    public ThirdPartyLoginEntity getThirdPartyLoginEntity() {
+        return thirdPartyLoginEntity;
+    }
+
+    public void setThirdPartyLoginEntity(ThirdPartyLoginEntity thirdPartyLoginEntity) {
+        this.thirdPartyLoginEntity = thirdPartyLoginEntity;
+    }
+
+    public ArrayList<AdPictureEntity> getAdPictureEntityArrayList() {
+        return adPictureEntityArrayList;
+    }
+
+    public void setAdPictureEntityArrayList(ArrayList<AdPictureEntity> adPictureEntityArrayList) {
+        this.adPictureEntityArrayList = adPictureEntityArrayList;
+    }
+
+    //    public String getOpenUrl() {
+//        return OpenUrl;
+//    }
+//
+//    public void setOpenUrl(String openUrl) {
+//        OpenUrl = openUrl;
+//    }
+
+//    public String getWeiPanFrontUrl() {
+//        return WeiPanFrontUrl;
+//    }
+//
+//    public void setWeiPanFrontUrl(String weiPanFrontUrl) {
+//        WeiPanFrontUrl = weiPanFrontUrl;
+//    }
+
+    public OpenAccountInfoEntity getOpenAccountInfoEntity() {
+        return openAccountInfoEntity;
+    }
+
+    public void setOpenAccountInfoEntity(OpenAccountInfoEntity openAccountInfoEntity) {
+        this.openAccountInfoEntity = openAccountInfoEntity;
+    }
+
+    public ArrayList<TradeAccountEntity> getTradeAccountEntityArrayList() {
+        return tradeAccountEntityArrayList;
+    }
+
+    public void setTradeAccountEntityArrayList(ArrayList<TradeAccountEntity> tradeAccountEntityArrayList) {
+        this.tradeAccountEntityArrayList = tradeAccountEntityArrayList;
+    }
+}

@@ -1,0 +1,363 @@
+<resources
+
+    >
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <item name="colorPrimary">@color/home_button_orange</item>
+
+    </style>
+    <!-- toolbar菜单样式 -->
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="subtitleTextColor">@android:color/white</item>
+        <!--<item name="actionMenuTextAppearance">@style/ToolbarMenuTextSize</item>-->
+    </style>
+    <!-- toolbar弹出菜单样式 -->
+    <style name="ToolbarPopupTheme" parent="@style/ThemeOverlay.AppCompat">
+        <item name="android:colorBackground">@color/home_button_orange</item>
+    </style>
+    <!-- toolbar标题样式 -->
+    <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">19sp</item>
+    </style>
+    <!-- toolbar菜单文字尺寸 -->
+    <style name="ToolbarMenuTextSize" parent="@style/TextAppearance.AppCompat.Menu">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="home_three_ll">
+        <!-- Customize your theme here. -->
+
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:layout_weight">1</item>
+
+    </style>
+
+    <style name="home_tab_rb" parent="@style/double_wrap_content">
+        <!--<item name="android:background">@drawable/tab_selector</item>-->
+        <item name="android:textColor">@drawable/maintab_widget_selector</item>
+        <item name="android:textSize">14sp</item>
+
+        <item name="android:button">@null</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:layout_weight">1</item>
+
+    </style>
+
+
+    <style name="home_bottom_button_ll">
+
+
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:layout_weight">1</item>
+
+    </style>
+
+    <style name="home_three_ll_rl">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:padding">5dip</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="shipan_select_commodity">
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_height">36dip</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="home_three_ll_rl_tv_line_parent">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="home_three_ll_rl_tv_line_1" parent="@style/home_three_ll_rl_tv_line_parent">
+        <!-- Customize your theme here. -->
+
+        <item name="android:textColor">@color/black</item>
+
+    </style>
+
+    <style name="home_three_ll_rl_tv_line_2" parent="@style/home_three_ll_rl_tv_line_parent">
+        <!-- Customize your theme here. -->
+
+        <item name="android:textColor">@color/text_grey</item>
+
+    </style>
+
+    <style name="home_three_ll_rl_bt">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:padding">5dp</item>
+
+        <item name="android:layout_height">40dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="home_three_ll_rl_bt_orange" parent="@style/home_three_ll_rl_bt">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@drawable/home_bt_selector_orange</item>
+
+    </style>
+    <style name="home_three_ll_rl_bt_red" parent="@style/home_three_ll_rl_bt">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@drawable/home_bt_selector_red</item>
+
+    </style>
+    <style name="bt_orange_big_textsize" parent="@style/home_three_ll_rl_bt_orange">
+        <!-- Customize your theme here. -->
+        <item name="android:textSize">18sp</item>
+
+    </style>
+
+    <style name="home_three_ll_rl_bt_blue" parent="@style/home_three_ll_rl_bt">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@drawable/home_bt_selector_blue</item>
+
+    </style>
+
+    <style name="shipan_baojia_ll_padding" parent="@style/shipan_baojia_ll">
+        <item name="android:padding">@dimen/common_padding</item>
+
+    </style>
+
+    <style name="shipan_baojia_ll">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/baojia_line_kuandu</item>
+        <item name="android:background">@color/white</item>
+
+
+    </style>
+    <style name="shipan_baojia_ll_no_bg" parent="@style/shipan_baojia_ll">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@null</item>
+
+
+    </style>
+    <style name="shipan_baojia_ll_bottom" parent="@style/shipan_baojia_ll">
+        <item name="android:layout_marginBottom">@dimen/baojia_line_kuandu</item>
+
+    </style>
+    <style name="shipan_baojia_ll_bottom_no_bg" parent="@style/shipan_baojia_ll">
+        <item name="android:background">@null</item>
+
+    </style>
+    <style name="shipan_baojia_ll_gezi">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">@dimen/common_padding</item>
+        <item name="android:layout_weight">1</item>
+
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <style name="item_title_textview_black">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15dp</item>
+
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:textColor="@color/black"-->
+        <!--android:textSize="15dp"-->
+    </style>
+    <style name="item_content_textview_default_color">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="shipan_baojia_ll_gezi_tv_top" parent="item_title_textview_black">
+    </style>
+
+
+    <style name="shipan_baojia_ll_gezi_tv_bottom" parent="item_content_textview_default_color">
+        <!-- Customize your theme here. -->
+
+        <item name="android:layout_marginTop">5dip</item>
+
+    </style>
+
+    <style name="shipan_baojia_ll_gezi_line">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">@dimen/baojia_line_kuandu</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@color/common_devider</item>
+
+    </style>
+
+
+    <style name="double_wrap_content">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+
+    </style>
+
+    <style name="listview_light_gray_divider">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:choiceMode">singleChoice</item>
+        <item name="android:fadingEdge">none</item>
+    </style>
+
+    <style name="Dialog_Transparent">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_row1" parent="@style/AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_row2" parent="@style/AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_red</item>
+        <item name="android:paddingLeft">5dip</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_row3" parent="@style/AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_ll_child_style" parent="@style/AppTheme">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_ll_child1_style" parent="@style/pricedetail_pager_timeline_wudang_ll_child_style">
+        <item name="android:gravity">left</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_ll_child2_style" parent="@style/pricedetail_pager_timeline_wudang_ll_child_style">
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#FF0000</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_ll_child3_style" parent="@style/pricedetail_pager_timeline_wudang_ll_child_style">
+        <item name="android:gravity">right</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:textColor">#00FF00</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_rl" parent="@style/AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="pricedetail_pager_timeline_wudang_ll" parent="@style/AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="pricedetail_fenshi_k_bar">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:background">@drawable/pricedetailactivity_cycles_bg_selector</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">38dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@drawable/pricedetailactivity_cycles_text_selector</item>
+        <!--<item name="android:onClick">doClick</item>-->
+    </style>
+
+    <style name="geren_ll">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/ll_selector_common</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:padding">8dip</item>
+
+
+    </style>
+
+    <style name="toolbar">
+        <item name="popupTheme">@style/ToolbarPopupTheme</item>
+        <item name="theme">@style/ToolbarTheme</item>
+        <item name="android:id">@+id/toolbar</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <!--<item name="android:minHeight">45dp</item>-->
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="tablayout">
+        <item name="tabGravity">center</item>
+        <item name="tabIndicatorColor">@color/white</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabSelectedTextColor">@color/white</item>
+        <item name="tabTextColor">@color/unselect_text_grey</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+
+
+    <style name="geren_ll_left_text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="geren_ll_right_img">
+
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_centerVertical">true</item>
+
+        <item name="android:background">@drawable/user_chevron_circle_right</item>
+
+    </style>
+
+
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+</resources>

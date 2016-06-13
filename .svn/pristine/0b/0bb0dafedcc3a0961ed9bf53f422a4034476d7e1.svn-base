@@ -1,0 +1,239 @@
+package com.puxtech.weipan.activity;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.puxtech.weipan.Constant;
+import com.puxtech.weipan.R;
+import com.puxtech.weipan.WeiXinLogin;
+import com.puxtech.weipan.data.entitydata.OpenAccountInfoEntity;
+import com.puxtech.weipan.helper.OtherHelper;
+import com.puxtech.weipan.helper.TradeHelper;
+import com.puxtech.weipan.util.ActivityUtils;
+import com.puxtech.weipan.util.FileUtils;
+import com.puxtech.weipan.util.SharedPreferenceManager;
+
+import java.io.File;
+
+
+/**
+ * 个人
+ */
+public class TabGeRenFragment extends BaseFragment {
+
+    RelativeLayout rl_zhanghuxinxi, rl_inout, rl_sysinfo,rl_logout;
+    TextView tv_nickname, tv_id, tv_phone, tv_info, tv_inout, tv_safe, tv_sysinfo;
+    ImageView iv_head;
+    private static TabGeRenFragment geRenFragment;
+
+    public static TabGeRenFragment getInstance(Context context) {
+        if (geRenFragment == null) {
+
+            geRenFragment = new TabGeRenFragment(context);
+        }
+        return geRenFragment;
+    }
+
+    public TabGeRenFragment(Context context) {
+        super();
+        this.context = context;
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View fView = inflater.inflate(R.layout.fragment_geren, container, false);
+        initWidget(fView);
+
+        readWeiXinData();
+
+//        if (myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity() != null) {
+//            tv_id.setText(myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity().getId_no());
+//            tv_phone.setText(myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity().getPhone());
+//
+//        }
+        if (getArguments() != null) {
+            Bundle bd = getArguments();
+            if (bd.get(Constant.TYPE).equals(TabHomeFragment.KAI_HU)) {
+                gotoZhangHuXinXi(bd);
+            }
+            if (bd.get(Constant.TYPE).equals(TabHomeFragment.CHONG_ZHI)) {
+                gotoChongZhi(bd);
+            }
+        }
+
+        return fView;
+    }
+
+    /**
+     * 开户后,页面要显示的数据
+     */
+    private void initFragmentData() {
+        if (new TradeHelper(context).hasOpen()) {
+            OpenAccountInfoEntity entity = myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity();
+            tv_id.setText(entity.getId_no());
+            tv_phone.setText(entity.getPhone());
+            tv_info.setText("账户编号:" + entity.getCustomer_no());
+            tv_inout.setText("当前资金:" + (myapp.getShipanTradeEntity().getTradeData().getAccountInfoData().getKeyongbaozhenjin() == null ? "0" : myapp.getShipanTradeEntity().getTradeData().getAccountInfoData().getKeyongbaozhenjin()));
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        initFragmentData();
+    }
+
+    /**
+     * 读取微信登陆后的信息
+     */
+    private void readWeiXinData() {
+        readHeadImgFromCard();
+        readNickNameFromShared();
+    }
+
+    private void readNickNameFromShared() {
+        SharedPreferenceManager spf = new SharedPreferenceManager(context, SharedPreferenceManager.WEI_XIN);
+        tv_nickname.setText(spf.getString(context, SharedPreferenceManager.WEI_XIN_NICK_NAME, ""));
+
+    }
+
+    private void readHeadImgFromCard() {
+        try {
+            File file = FileUtils.getFile(context, Constant.WEI_XIN_DIR, Constant.WEI_XIN_HEAD_IMG);
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            iv_head.setImageBitmap(bitmap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initWidget(View fView) {
+        tv_id = (TextView) fView.findViewById(R.id.tv_id);
+        tv_phone = (TextView) fView.findViewById(R.id.tv_phone);
+        tv_info = (TextView) fView.findViewById(R.id.tv_info);
+        tv_inout = (TextView) fView.findViewById(R.id.tv_inout);
+        tv_safe = (TextView) fView.findViewById(R.id.tv_safe);
+        tv_sysinfo = (TextView) fView.findViewById(R.id.tv_sysinfo);
+        rl_zhanghuxinxi = (RelativeLayout) fView.findViewById(R.id.rl_zhanghuxinxi);
+        rl_inout = (RelativeLayout) fView.findViewById(R.id.rl_inout);
+
+        rl_sysinfo = (RelativeLayout) fView.findViewById(R.id.rl_sysinfo);
+        rl_logout= (RelativeLayout) fView.findViewById(R.id.rl_logout);
+        iv_head = (ImageView) fView.findViewById(R.id.iv_head);
+        tv_nickname = (TextView) fView.findViewById(R.id.tv_nickname);
+        rl_zhanghuxinxi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoZhangHuXinXi(null);
+            }
+        });
+        rl_inout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                TradeHelper tradeHelper = new TradeHelper(context);
+
+                if (tradeHelper.hasOpen()) {
+                    gotoChongZhi(null);
+                } else {
+
+                    Toast.makeText(context, "请先开户", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+        rl_sysinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TradeHelper tradeHelper = new TradeHelper(context);
+                if (tradeHelper.hasOpen()) {
+                    startActivity(new Intent(context, GeRenSysInfoActivity.class));
+                } else {
+
+                    Toast.makeText(context, "请先开户", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        rl_logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityUtils.showAlertWithConfirmText(context,"是否退出当前账号?","确定",new Runnable() {
+                    public void run() {
+                        SharedPreferenceManager spf = new SharedPreferenceManager(context, SharedPreferenceManager.WEI_XIN);
+//                        if (spf.contains(SharedPreferenceManager.WEI_XIN_UNION_ID)) {
+                        spf.remove(context,SharedPreferenceManager.WEI_XIN_UNION_ID);
+                        startActivity(new Intent(getActivity(),WeiXinLogin.class));
+                        getActivity().finish();
+                    }
+                });
+
+            }
+        });
+    }
+
+    /**
+     * 跳转充值页面
+     *
+     * @param bd
+     */
+    private void gotoChongZhi(Bundle bd) {
+        Intent intent = new Intent(context, GeRenChongZhiActivity.class);
+        if (bd != null) {
+            intent.putExtras(bd);
+        }
+        startActivity(intent);
+
+    }
+
+
+    /**
+     * 跳转充值页面
+     *
+     * @param bd
+     */
+    private void gotoZhangHuXinXi(Bundle bd) {
+        Intent intent = new Intent(context, GeRenActInfoActivity.class);
+        if (bd != null) {
+            intent.putExtras(bd);
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+
+}

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/common_padding">
+
+    <LinearLayout style="@style/geren_ll">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="您当前可提现资金:" />
+
+        <TextView
+            android:id="@+id/tv_tixianzijin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/geren_ll"
+
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="选择类型:" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_in"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="网银充值(入金)" />
+
+            <RadioButton
+                android:id="@+id/rb_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="提现(出金)" />
+
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/tv_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+    <LinearLayout style="@style/geren_ll">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+
+            android:text="输入金额:" />
+
+        <EditText
+            android:id="@+id/et_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_checkcode"
+        style="@style/geren_ll"
+
+        >
+
+
+        <include layout="@layout/edittext_button" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_password"
+        style="@style/geren_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+
+            style="@style/geren_ll"
+          >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+
+                android:text="资金密码:" />
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="numberPassword" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/geren_ll"
+            android:gravity="center_vertical">
+
+            <TextView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+
+                android:text="您的初始资金密码已通过短信发送至您的开户手机号" />
+
+            <Button
+                android:id="@+id/bt_changepassword"
+                style="@style/home_three_ll_rl_bt_orange"
+                android:layout_width="match_parent"
+
+                android:layout_weight="1"
+                android:text="修改资金密码" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/geren_ll">
+
+        <Button
+            android:id="@+id/bt_commit"
+            style="@style/bt_orange_big_textsize"
+            android:layout_width="match_parent"
+            android:text="确认" />
+    </LinearLayout>
+</LinearLayout>

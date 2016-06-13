@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar style="@style/toolbar" />
+
+
+    <LinearLayout style="@style/geren_ll">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/til_oldpwd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入原密码:">
+            <EditText
+                android:id="@+id/et_oldpwd"
+                android:maxLength="6"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberPassword" />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/geren_ll">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/til_newpwd"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入新密码:">
+
+            <EditText
+                android:id="@+id/et_newpwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberPassword"
+                android:maxLength="6"
+
+                />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/geren_ll">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/til_copypwd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请重复新密码:">
+
+            <EditText
+                android:id="@+id/et_copypwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLength="6"
+                android:inputType="numberPassword"
+
+                />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+    <LinearLayout style="@style/geren_ll">
+    <Button
+        android:id="@+id/bt_commit"
+        style="@style/bt_orange_big_textsize"
+        android:layout_width="match_parent"
+        android:text="确认"
+        />
+    </LinearLayout>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton"
+        android:layout_gravity="right" />
+
+</LinearLayout>

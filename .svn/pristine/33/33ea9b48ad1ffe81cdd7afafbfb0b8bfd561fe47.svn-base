@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context="com.puxtech.weipan.activity.TabHomeFragment">
+    <SurfaceView
+        android:layout_width="1dip"
+        android:layout_height="1dip" />
+    <!-- TODO: Update blank fragment layout -->
+    <include layout="@layout/fragment_shipan_selectcommodity" />
+
+    <include layout="@layout/fragment_shipan_baojia" />
+    <include layout="@layout/fragment_shipan_stockcharts"/>
+</LinearLayout>

@@ -1,0 +1,679 @@
+package com.puxtech.weipan.viewHelp;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.puxtech.weipan.Constant;
+import com.puxtech.weipan.R;
+import com.puxtech.weipan.activity.TabActivity;
+import com.puxtech.weipan.data.BaseResponseData;
+import com.puxtech.weipan.data.KLineOneResponseData;
+import com.puxtech.weipan.data.entitydata.KLineEntity;
+import com.puxtech.weipan.data.entitydata.KPointEntity;
+import com.puxtech.weipan.data.entitydata.PriceEntity;
+import com.puxtech.weipan.helper.StockChartsKLineViewHelper;
+import com.puxtech.weipan.network.Logger;
+import com.puxtech.weipan.util.ActivityUtils;
+import com.puxtech.weipan.util.FormulaUtil;
+import com.puxtech.weipan.view.KLineCrossLineView;
+import com.puxtech.weipan.view.KLineView;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
+public class StockChartsKLineView extends BaseStockChartsView implements KLineView.KLineViewCallBack {
+    Context context;
+    View kLinePagerView;
+    KLineCrossLineView kLineCrossLineView;
+    KLineView kLinePortrait;
+    ProgressBar kLineProgressBar;
+    PriceEntity priceEntity;
+    StockChartsKLineViewHelper kLineViewHelper;
+    short currentCycleId;
+    boolean refreshKLine;
+    StockChartsView.ChangeSelectBgCallBack stockChartsBack;
+    Timer autoRefreshTimer;
+
+    public StockChartsKLineView(Context context, StockChartsView.ChangeSelectBgCallBack basicDataCallBack, PriceEntity priceEntity) {
+
+        super(context);
+        this.context = context;
+        this.stockChartsBack = basicDataCallBack;
+        kLineViewHelper = new StockChartsKLineViewHelper(context,myapp.getCurrentTradeEntity());
+        this.priceEntity = priceEntity;
+        initWidget();
+        initAutoRefreshKLineTask();
+    }
+
+    private void initWidget() {
+        kLinePagerView = LayoutInflater.from(context).inflate(
+                R.layout.stock_chart_kline, null);
+        // k线图view
+        kLinePortrait = (KLineView) kLinePagerView
+                .findViewById(R.id.view_k_portrait);
+        kLinePortrait.setkLineViewCallBack(this);
+        // 十字线
+        kLineCrossLineView = (KLineCrossLineView) kLinePagerView
+                .findViewById(R.id.view_cross_line_k);
+        // 把十字线的引用赋给k线图
+        kLinePortrait.setView_cross_line(kLineCrossLineView);
+        kLineProgressBar = (ProgressBar) kLinePagerView
+                .findViewById(R.id.progressBar);
+    }
+
+    //private final int day_cycle_divider = 6;
+
+    /**
+     * 获取某商品的K线数据
+     */
+    public void getKLineData(short currentId) {
+        currentCycleId = currentId;
+        // 如果是日以上的周期，就获取3000条 日以上周期走老的v1协议，日以下周期走v2协议含压缩包的方式
+       // if (currentCycleId > day_cycle_divider) {
+            getKLineDataMoreThanDay(currentId);
+//        } else {
+//            getKLineDataLessThanDay();
+//        }
+    }
+
+
+    /**
+     * 大于1日，按3000条获取
+     */
+    private void getKLineDataMoreThanDay(short currentId) {
+        int commodityNumber = myapp.getCurrentTradeEntity().getPriceData().getPriceRuntimeData()
+                .getCurrentCommodityNumber();
+        boolean hasCacheData = kLineViewHelper.checkKLineDataExist(context,
+                commodityNumber, currentId);
+        if (hasCacheData) {
+            // 如果是同一交易日，并且有缓存文件，就从本地获取
+            List<KPointEntity> allKPointList = kLineViewHelper
+                    .getAllKPointFromFile(context, commodityNumber,
+                            currentId);
+            KLineEntity file_kle = generateKLineEntity(commodityNumber,
+                    allKPointList);
+
+            // get_cal_set(file_kle);计算指标用的.暂时不用
+            setAllKPointList(file_kle);
+            stockChartsBack.change_selectedview_bg();
+            // 切换周期时，如果前一个商品服务器返回错误码，就会停止刷新，后一个商品如果有本地缓存，就不会从网络获取，这里需要开启一下自动刷新
+            refreshKLine = true;
+        } else {
+            // 如果没有缓存，从网络获取
+            kLineLoad3000(commodityNumber);
+        }
+    }
+
+    /**
+     * 初始化并开启自动刷新K线,定时任务
+     */
+    private void initAutoRefreshKLineTask() {
+        // 创建定时线程
+        autoRefreshTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if (!refreshKLine) {
+                    return;
+                }
+                KPointEntity lastPoint = getLastKPoint();
+                if (lastPoint == null) {
+                    return;
+                }
+                String formatTime = ActivityUtils.getRealTimeOfInteger(String
+                        .valueOf(lastPoint.getTime()));
+                long time = Long.parseLong(formatTime);
+                // 从最后一个往右取，取所有的
+                KLineOneResponseData kLineOneResponseData;
+                try {
+                    kLineOneResponseData = httpManagerPrice.getKLineSync(myapp.getCurrentTradeEntity().getPriceData().getPriceRuntimeData().getCurrentCommodityNumber(),
+                            getCurrentCycleId(), time, 1, 3000, priceEntity.getMarketNumber(), priceEntity.getEnvNumber());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    //setErrorUnknow(kLineOneResponseData);
+                    return;
+
+                }
+
+                if (kLineOneResponseData.getRetCode() == 0) {
+                    KLineEntity entity = kLineOneResponseData.getkLineEntity();
+                    // 如果获取到数据时，用户已经更换了周期，就不往下执行了
+                    if (entity.getCycle() != getCurrentCycleId()) {
+                        return;
+                    }
+                    // 如果商品变了，就不保存
+                    if (entity.getNumber() != myapp.getCurrentTradeEntity().getPriceData().getPriceRuntimeData()
+                            .getCurrentCommodityNumber()) {
+                        return;
+                    }
+                    List<KPointEntity> allPointList = getAllKPoint();
+                    if (allPointList.size() == 0) {//转屏时可能正好在初始化list size为0 会导致下面出现错误，应该终止此次刷新
+                        return;
+                    }
+                    int count = entity.getRecordNum();// 总共有多少个柱子
+                    List<KPointEntity> newPointList = entity.getRecordList();
+                    if (count == 1) {
+                        KPointEntity newLastPoint = entity.getRecordList().get(0);
+                        KPointEntity oldLastPoint = allPointList.get(allPointList.size() - 1);// 取出当前所有柱子列表的最后一个
+                        // 检查获取到的这一条有没有变化,如果有变化，就去掉最后一个点，替换成新的，新的要计算
+                        if (isChanged(newLastPoint, oldLastPoint)) {
+                            doGetSomeone(entity, count, newPointList);
+                        } else {
+                            // 跟原来一样，就不执行后面的缓存部分了，因为没有进行计算
+                            return;
+                        }
+                    } else if (count == 0) {
+                        // 直接返回，不执行后面的缓存部分了，因为没有进行计算
+                        return;
+                    } else if (count > 1) {
+                        doGetSomeone(entity, count, newPointList);
+                    }
+                    saveNewPointToFile(entity, count, newPointList);
+                } else {
+                    Logger.e("刷新K线出错，请求码：" + kLineOneResponseData.getProtocolNumber()
+                            + ",错误：" + kLineOneResponseData.getRetCode() + ","
+                            + kLineOneResponseData.getRetMessage());
+                    refreshKLine = false;
+                }
+            }
+
+
+            private void saveNewPointToFile(KLineEntity entity, int count, List<KPointEntity> newPointList) {
+                // 本地缓存
+                int allKPointLength = count
+                        * KPointEntity.getByteBufferSize();// 所有柱子一共占多少长度
+                ByteBuffer newPointsBuffer = ByteBuffer
+                        .allocate(allKPointLength);
+                for (int i = 0; i < count; i++) {
+                    KPointEntity point = newPointList.get(i);
+                    newPointsBuffer.put(point.buildByteArray());
+                }
+                // 把获取到的所有柱子保存到本地缓存文件中,因为获取到的第一个和缓存中的最后一个是同一个柱子，所以要先把缓存中的最后一个删掉再添加(删除操作在replaceLastKPointInFile方法里)
+                kLineViewHelper.replaceLastKPointInFile(context, entity.getNumber(), getCurrentCycleId(), newPointsBuffer.array());
+            }
+
+
+            private void doGetSomeone(KLineEntity entity, int count, final List<KPointEntity> newPointList) {
+                FormulaUtil formulaUtil = new FormulaUtil();
+                Logger.v("refresh K return newPointList size:" + newPointList.size());
+                Logger.v("refresh (编号,周期)" + myapp.getCurrentTradeEntity().getPriceData().getPriceRuntimeData().getCurrentCommodityNumber() + "," + getCurrentCycleId() + "back---------------Kpoint" + count);
+                Logger.v("entity cycle=" + entity.getCycle() + "entity number=" + entity.getNumber() + " equals current cycle:" + (getCurrentCycleId() == entity.getCycle()));
+
+//                List<ExpressionCache> ec = prd.getExp_manager().getExpressionCache(entity.getNumber(), entity.getCycle());
+//                HTExpressionEntity local_exp;
+                List<KPointEntity> allPointList = getAllKPoint();
+                //先去掉旧k线的最后一个点，它和新k线的第一个点是重复的
+                allPointList.remove(allPointList.size() - 1);
+
+
+                if (entity.getCycle() != getCurrentCycleId()) {
+                    return;
+                }
+                allPointList.addAll(newPointList);//此时LruCache中缓存的KLineEntity 中的RecordList也会变，但是recordNum并没有增加，但不会导致程序崩溃
+
+                //保持一致性应该让其增加 但是日以上周期并没有用Lru缓存 所以日以上周期不做处理
+//                if (entity.getCycle() <= day_cycle_divider) {
+//                    KLineEntity lru_en = myapp.getCurrentTradeEntity().getPriceData().getObjFromMemCache(entity.getNumber(), (short) entity.getCycle());
+//                    if (lru_en != null) {
+//                        lru_en.setRecordNum(allPointList.size());
+//                    }
+//                }
+//                if (count > 1) {//=1时remove了最后一个点缓存长度不变
+//                    AddSizeKlineEntity ake = new AddSizeKlineEntity();
+//                    ake.setCycle(entity.getCycle());
+//                    ake.setNumber(entity.getNumber());
+//                    ake.setNew_point_len((newPointList.size() - 1) * KPointEntity.getByteBufferSizeInMemory());
+//                    String helper_key = myapp.getCurrentTradeEntity().getPriceData().getHelperKey(entity);
+//                    myapp.getCurrentTradeEntity().getPriceData().createMemoryCache().put(helper_key, ake);//只用于给缓存增加长度 以防其put 时算出size负值导致崩溃
+//                }
+
+                // 重新计算所有PMA
+                 formulaUtil.calAllPMA(allPointList);
+                ((TabActivity)context).runOnUiThread(new Runnable() {
+                    public void run() {
+                        afterAppendNewKPoints(newPointList);
+                    }
+
+
+                });
+            }
+
+            private boolean isChanged(KPointEntity newLastPoint,
+                                      KPointEntity oldLastPoint) {
+                return newLastPoint.getHighestPrice() != oldLastPoint.getHighestPrice() || newLastPoint.getLowestPrice() != oldLastPoint
+                        .getLowestPrice()
+                        || newLastPoint.getClosePrice() != oldLastPoint
+                        .getClosePrice();
+            }
+        };
+        autoRefreshTimer.schedule(task, 500, 1000);// 暂时每隔1秒取一次
+    }
+
+//    /**
+//     * 小于1日，按交易日获取
+//     */
+//    private void getKLineDataLessThanDay() {
+//        int commodityNumber = myapp.getCurrentTradeEntity().getPriceData().getPriceRuntimeData()
+//                .getCurrentCommodityNumber();
+//        // 检查软引用是否缓存了数据
+//        KLineEntity kle = myapp.getCurrentTradeEntity().getPriceData().getObjFromMemCache(
+//                commodityNumber, getCurrentCycleId());
+//        if (kle != null) {
+//            // get_cal_set(kle);
+//
+//            setAllKPointList(kle);
+//            //  change_selectedview_bg();
+//            // 切换周期时，如果前一个商品服务器返回错误码，就会停止刷新，后一个商品如果有本地缓存，就不会从网络获取，这里需要开启一下自动刷新
+//            refreshKLine = true;
+//            //  viewHelper.setLoadedAllPointList(true);
+//            return;
+//        }
+//
+//        // 如果是同一天，就从本地获取，如果不是同一天，就删除本地的，再从网络获取
+//        SharedPreferenceManager preManager = new SharedPreferenceManager(
+//                context, SharedPreferenceManager.FILE_NAME_COMMODITY);
+//        long lastTime = preManager.getLong(context, preManager
+//                .getKLineLastRefreshTimeKey(getCurrentCycleId(),
+//                        commodityNumber), 0l);
+//        // 如果上次更新的时间，在本交易日的06：00之后，就算作同一天
+//        long todaySix = TimeUtil.getCurrentTradeStartTime();
+//        boolean hasCacheData = kLineViewHelper.checkKLineDataExist(context,
+//                commodityNumber, getCurrentCycleId());
+//        refreshKLine = false;
+//        if (lastTime >= todaySix && hasCacheData) {
+//            // 如果是同一交易日，并且有缓存文件，就从本地获取
+//            List<KPointEntity> allKPointList = kLineViewHelper
+//                    .getAllKPointFromFile(context, commodityNumber,
+//                            getCurrentCycleId());
+//            KLineEntity file_kle = generateKLineEntity(commodityNumber,
+//                    allKPointList);
+//            myapp.getCurrentTradeEntity().getPriceData().addObjToMemoryCache(file_kle);
+//            //  get_cal_set(file_kle);
+//            setAllKPointList(file_kle);
+//            stockChartsBack.change_selectedview_bg();
+//            // 切换周期时，如果前一个商品服务器返回错误码，就会停止刷新，后一个商品如果有本地缓存，就不会从网络获取，这里需要开启一下自动刷新
+//            refreshKLine = true;
+//            //viewHelper.setLoadedAllPointList(true);
+//        } else if (!hasCacheData) {
+//            // 如果没有缓存，从网络获取
+//            getKLineAndZipUrl(commodityNumber,
+//                    priceEntity.getMarketNumber(), priceEntity.getEnvNumber());
+//        } else {
+//            kLineViewHelper.deleteKLineData(context, commodityNumber,
+//                    getCurrentCycleId());
+//            getKLineAndZipUrl(commodityNumber,
+//                    priceEntity.getMarketNumber(), priceEntity.getEnvNumber());
+//        }
+//    }
+
+//    /**
+//     * 从网络获取k线数据，获取完毕添加到缓存文件的末尾
+//     *
+//     * @param commodityNumber
+//     */
+//    private void getKLineAndZipUrl(final int commodityNumber,
+//                                   final int marketNumber, final int envNumber) {
+//        putAsyncTask(new AsyncTask<Void, Void, Boolean>() {
+//                         // Dialog dialog;
+//                         short cycle = getCurrentCycleId();
+//
+//                         boolean userCancel = false;
+//                         KLineAndZipUrlResponseData kLineAndZipUrlResponseData = new KLineAndZipUrlResponseData();
+//
+//                         //private CommonReturnEntity head;
+//                         @Override
+//                         protected void onPreExecute() {
+//                             super.onPreExecute();
+//                             // dialog = ActivityUtils.showLoadingProgressDialog(context,
+//                             // "正在获取600条K线数据");
+//                             refreshKLine = false;
+//                             onLoadingData();
+//
+//                         }
+//
+//                         @Override
+//                         protected Boolean doInBackground(Void... params) {
+//
+//                             // K线初始化 返回一定量的K线柱子和数据压缩包地址
+//
+//                             try {
+//                                 kLineAndZipUrlResponseData = httpManagerPrice.getKLineAndZipUrl(
+//                                         (short) commodityNumber, cycle, marketNumber,
+//                                         envNumber);
+//                             } catch (Exception e) {
+//                                 e.printStackTrace();
+//                                 refreshKLine = false;
+//                                 setErrorUnknow(kLineAndZipUrlResponseData);
+//                             }
+//                             return false;
+//                         }
+//
+//
+//                         protected void onPostExecute(Boolean result) {
+//                             super.onPostExecute(result);
+//                             if (userCancel || result == null) return;
+//                             // dialog.dismiss();
+//                             onLoadedData();
+//                             if (kLineAndZipUrlResponseData.getRetCode() == 0) {
+//                                 KLineEntity kLineEntity = kLineAndZipUrlResponseData.getkLineEntity();
+//                                 boolean hasZip = kLineEntity.getZipURLs() != null
+//                                         && kLineEntity.getZipURLs().size() > 0;
+//                                 setLoadedAllPointList(!hasZip);
+//                                 FormulaUtil formulaUtil = new FormulaUtil();
+//                                 // List<KPointEntity> allPointList;
+//                                 if (hasZip) {
+//                                     formulaUtil.calAllPMA(kLineEntity.getRecordList());
+////                                     allPointList = ;
+////                                     allPointList = formulaUtil.calAllPMA(allPointList);//只计算pma
+//                                     // 压缩包1,、5、15是一天一个 可能含有多个压缩包，30、60、日是就一个
+//                                     for (int i = 0; i < kLineEntity.getZipURLs().size(); i++) {
+//                                         Logger.v(i + ":" + kLineEntity.getZipURLs().get(i));
+//                                     }
+//                                     //cal_zdy_quato(entity);
+//                                     setAllKPointList(kLineEntity);
+//                                     getKLineFromZip(kLineEntity);// 下载K线压缩包
+//                                 } else {
+//                                     if (kLineEntity.getRecordList().size() <= 0) {
+//                                         ActivityUtils.showCenterToast(context, "暂时没有K线数据",
+//                                                 Toast.LENGTH_SHORT);
+//                                         return;
+//                                     }
+//                                     myapp.getCurrentTradeEntity().getPriceData().addObjToMemoryCache(kLineEntity);
+//                                     formulaUtil.calAllPMA(kLineEntity.getRecordList());
+//                                     // allPointList = calRawZhibiao(kLineEntity);//计算所有指标 pma macd k d j
+//                                     // get_cal_set(entity);//
+//                                     refreshKLine = true;
+//                                     setAllKPointList(kLineEntity);
+//                                 }
+//                                 stockChartsBack.change_selectedview_bg();
+//                             } else {
+//                                 ActivityUtils.showCenterToast(context, kLineAndZipUrlResponseData.getRetMessage() + "(" + kLineAndZipUrlResponseData.getRetCode() + ")", Toast.LENGTH_SHORT);
+//
+//                             }
+//                         }
+//
+//                     }
+//
+//        );
+//    }
+
+//    /**
+//     * 正式获取所有的zip中k线，获取完要进行计算和缓存到本地
+//     */
+//    private void getKLineFromZip(final KLineEntity ke) {
+//        putAsyncTask(new AsyncTask<Void, Void, Boolean>() {
+//            KLineEntity entity;
+//            private final int zipMaxCount = 5;
+//            KLineFromZipUrlResponseData kLineFromZipUrlResponseData;
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//            }
+//            @Override
+//            protected Boolean doInBackground(Void... params) {
+//                entity = ke;
+//                //KLineEntity kLineZip = null;
+//               // ArrayList<KPointEntity> allKPE = null;
+//                // 30分以上周期只有一个压缩包 所以做一次就会结束循环，30分以下周期一直下到够一屏的数据为止，（竖屏）
+//                String url = null;
+//                long time1 = -1l;
+//                List<KPointEntity> points = entity.getRecordList();
+//                if (points.size() > 0)
+//                    time1 = entity.getRecordList().get(0).getTime();
+//                int down_count = 0;
+//                do {
+//                    url = ke.getCurDayZipURL();
+////					url="http://101.251.203.210:9080/rmi/zipFile/klineday/five/6/A012015-01-12.zip";
+//
+//                    if (url == null)
+//                        break;
+//                    //  kzip = new HttpManagerPrice(context).getKLineFromZipUrl(url, priceEntity.getZuId());
+//                    kLineFromZipUrlResponseData = httpManagerPrice.getKLineFromZipUrl(url);
+//
+//                    if (kLineFromZipUrlResponseData.getRetCode() != 0)
+//                        break;//不再尝试下载后面的压缩包
+//
+//                    down_count++;
+//                    KLineEntity kLineZip = kLineFromZipUrlResponseData.getkLineEntity();
+//                    if (kLineZip.getRecordNum() == 0)
+//                        continue;
+//
+//                    long time2 = kLineZip.getRecordList()
+//                            .get(kLineZip.getRecordNum() - 1).getTime();
+//                    if (time1 > time2) {
+//                        entity.getRecordList().addAll(0, kLineZip.getRecordList());
+//                        entity.setRecordNum(entity.getRecordList().size());
+//                    } else {
+//
+//                        //合并相同的点
+//                        ArrayList<KPointEntity> allKPE  = kLineViewHelper.mergeSameKPointEntity(
+//                                entity.getRecordList(), kLineZip.getRecordList());
+//                        entity.setRecordList(allKPE);
+//                        entity.setRecordNum(entity.getRecordList().size());
+//                    }
+//                } while (entity.hasDownUrl() && down_count < zipMaxCount);//最多下载五个压缩包
+//                if (entity.getRecordNum() > 0) {
+//                    List<KPointEntity> allPointList = entity.getRecordList();
+//                    FormulaUtil formulaUtil = new FormulaUtil();
+//                    allPointList = formulaUtil.calAllPMA(allPointList);// 计算pma
+//                    // get_cal_set(entity);
+//                    // 缓存计算出的数据
+//                    int count = entity.getRecordNum();// 总共有多少个柱子
+//                    int allKPointLength = count
+//                            * KPointEntity.getByteBufferSize();// 所有柱子一共占多少长度
+//                    final ByteBuffer saveBuffer = ByteBuffer
+//                            .allocate(allKPointLength);
+//                    for (int i = 0; i < count; i++) {
+//                        KPointEntity point = allPointList.get(i);
+//                        byte[] kPointBytes = point.buildByteArray();
+//                        saveBuffer.put(kPointBytes);
+//                    }
+//                    new Thread() {
+//                        public void run() {
+//                            kLineViewHelper.saveKLineDataToFile(context,
+//                                    entity.getNumber(), getCurrentCycleId(),
+//                                    saveBuffer.array());
+//                        }
+//
+//                        ;
+//                    }.start();
+//                }
+//                return true;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Boolean result) {
+//                super.onPostExecute(result);//无论下载压缩包是否正常，如果有KPoint画指标 缓存
+//
+//                if (entity.getRecordList().size() <= 0) {
+//                    ActivityUtils.showCenterToast(context, "暂时没有K线数据",
+//                            Toast.LENGTH_SHORT);
+//
+//                }
+//                setLoadedAllPointList(true);
+//                entity.setNeedCalUporDown(true);
+//                setAllKPointList(entity);
+//                refreshKLine = true;
+//                myapp.getCurrentTradeEntity().getPriceData().addObjToMemoryCache(entity);
+//            }
+//        });
+//    }
+
+
+    /**
+     * 获取3000条K线
+     *
+     */
+    private void kLineLoad3000(final int commodityNumber) {
+        putAsyncTask(new AsyncTask<Void, Void, Boolean>() {
+            //  KLineEntity entity;
+            KLineOneResponseData kLineOneResponseData;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                onLoadingData();
+            }
+
+            @Override
+            protected Boolean doInBackground(Void... params) {
+
+                try {
+                    kLineOneResponseData = httpManagerPrice.getKLineSync(commodityNumber, getCurrentCycleId(), -1, 0, 3000,
+                            priceEntity.getMarketNumber(),
+                            priceEntity.getEnvNumber());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    setErrorUnknow(kLineOneResponseData);
+                }
+                return true;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                super.onPostExecute(result);
+                onLoadedData();
+                if (0 == kLineOneResponseData.getRetCode()) {
+
+                    KLineEntity entity = kLineOneResponseData.getkLineEntity();
+                    if (entity.getRecordNum() <= 0) {
+                        ActivityUtils.showCenterToast(context, "暂时没有K线数据",
+                                Toast.LENGTH_SHORT);
+                        return;
+                    }
+                    // 计算各种指标线
+                    List<KPointEntity> allPointList = entity.getRecordList();
+                    FormulaUtil formulaUtil = new FormulaUtil();
+                    formulaUtil.calAllPMA(allPointList);//                    get_cal_set(entity);
+                    setAllKPointList(entity);
+//                    PriceDetailActivity.this.current_kentity = entity;
+                    stockChartsBack.change_selectedview_bg();                    // 缓存计算出的数据
+                    int count = entity.getRecordNum();// 总共有多少个柱子
+                    int allKPointLength = count
+                            * KPointEntity.getByteBufferSize();// 所有柱子一共占多少长度
+                    ByteBuffer saveBuffer = ByteBuffer
+                            .allocate(allKPointLength);
+                    for (int i = 0; i < count; i++) {
+                        KPointEntity point = allPointList.get(i);
+                        byte[] kPointBytes = point.buildByteArray();
+                        saveBuffer.put(kPointBytes);
+                    }
+                    kLineViewHelper.saveKLineDataToFile(context,
+                            entity.getNumber(), getCurrentCycleId(),
+                            saveBuffer.array());
+                    // 请求成功，可以继续自动刷新
+                    refreshKLine = true;
+                } else {
+                    ActivityUtils.showCenterToast(context, kLineOneResponseData.getRetMessage() + "(" + kLineOneResponseData.getRetCode() + ")", Toast.LENGTH_SHORT);
+                }
+            }
+        });
+    }
+
+    private void setErrorUnknow(BaseResponseData baseResponseData) {
+        baseResponseData.setRetCode(Constant.CODE_ERROR_UNKNOW);
+        baseResponseData.setRetMessage(Constant.MESSAGE_ERROR_UNKNOW);
+    }
+
+
+    private KLineEntity generateKLineEntity(int commodityNumber,
+                                            List<KPointEntity> allKPointList) {
+        KLineEntity file_kle = new KLineEntity();
+        file_kle.setRecordList((ArrayList<KPointEntity>) allKPointList);
+        file_kle.setNumber(commodityNumber);
+        file_kle.setRecordNum(allKPointList.size());
+        file_kle.setZipURLs(null);
+        file_kle.setCycle(getCurrentCycleId());
+        return file_kle;
+    }
+
+    public KPointEntity getLastKPoint() {
+        List<KPointEntity> allList = kLinePortrait.getAllPointList();
+        if (allList == null || allList.size() == 0) {
+            return null;
+        }
+        return allList.get(allList.size() - 1);
+    }
+
+    public List<KPointEntity> getAllKPoint() {
+        return kLinePortrait.getAllPointList();
+    }
+
+    public short getCurrentCycleId() {
+        return this.currentCycleId;
+    }
+
+    public void afterAppendNewKPoints(List<KPointEntity> list) {
+        this.kLinePortrait.afterAppendNewKPoints(list);
+    }
+    public KLineCrossLineView getkLineCrossLineView() {
+        return kLineCrossLineView;
+    }
+
+
+    public void setAllKPointList(KLineEntity entity) {
+        resetKLineView();
+        kLinePortrait.setAllPointList(entity);
+    }
+
+    public void resetKLineView() {
+        kLinePortrait.reset();
+    }
+
+    public void showProgressBar() {
+        kLineProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideProgressBar() {
+        kLineProgressBar.setVisibility(View.GONE);
+    }
+
+    public void onLoadingData() {
+        kLineProgressBar.setVisibility(View.VISIBLE);
+
+    }
+    public void clearKLineView() {
+
+        if (kLinePortrait != null) {
+            kLinePortrait.clearView();
+        }
+    }
+    public KLineView getKLinePortrait() {
+        return  kLinePortrait;
+    }
+
+
+    public View getkLinePagerView() {
+        return kLinePagerView;
+    }
+
+    public void onLoadedData() {
+
+        kLineProgressBar.setVisibility(View.GONE);
+
+    }
+
+    public boolean isRefreshKLine() {
+        return refreshKLine;
+    }
+
+    public void setRefreshKLine(boolean refreshKLine) {
+//        if(refreshKLine){
+//
+//            kLinePortrait.setVisibility(View.VISIBLE);
+//
+//        }
+//        getKLinePortrait().setZOrderOnTop(true);
+
+        this.refreshKLine = refreshKLine;
+    }
+}

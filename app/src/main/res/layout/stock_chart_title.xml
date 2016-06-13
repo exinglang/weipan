@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlayout_cycles"
+    android:layout_width="match_parent"
+    android:layout_height="24dp"
+
+    android:layout_marginTop="4dp"
+    android:background="@color/common_background">
+
+    <TextView
+        android:id="@+id/pricedetail_fenshi"
+        style="@style/pricedetail_fenshi_k_bar"
+        android:text="分时" />
+
+    <TextView
+        android:id="@+id/pricedetail_kline_cycle1"
+        style="@style/pricedetail_fenshi_k_bar" />
+
+    <TextView
+        android:id="@+id/pricedetail_kline_cycle2"
+        style="@style/pricedetail_fenshi_k_bar" />
+
+    <TextView
+        android:id="@+id/pricedetail_kline_cycle3"
+        style="@style/pricedetail_fenshi_k_bar" />
+
+    <TextView
+        android:id="@+id/pricedetail_kline_cycle4"
+        style="@style/pricedetail_fenshi_k_bar" />
+
+    <TextView
+        android:id="@+id/pricedetail_kline_cycle5"
+        style="@style/pricedetail_fenshi_k_bar"
+        android:paddingRight="1dp"
+        />
+
+</LinearLayout>

@@ -1,0 +1,82 @@
+package com.puxtech.weipan.ResponseData;
+
+import com.puxtech.weipan.Constant;
+import com.puxtech.weipan.data.BaseResponseDataTrade;
+import com.puxtech.weipan.data.HoldTotalData;
+import com.puxtech.weipan.data.OtherFirmData;
+import com.puxtech.weipan.data.SysInfoData;
+import com.puxtech.weipan.data.TradeEntity;
+import com.puxtech.weipan.util.ActivityUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * Created by mac on 15/11/5.
+ */
+public class SysInfoResponseData extends BaseResponseDataTrade {
+    private static final String TAG_ID = "ID";
+    private static final String TAG_TITLE = "TITLE";
+    private static final String TAG_TYPE = "TYPE";
+    private static final String TAG_PUBLISH = "PUBLISH";
+    private static final String TAG_SEND_TIME = "SEND_TIME";
+    private static final String TAG_EXPIRY_TIME = "EXPIRY_TIME";
+    public int recordNumber;//取得的记录数
+    public ArrayList<SysInfoData> dataList;
+
+    public void parseXML(String jsString) {
+        try {
+            JSONObject root = checkFail(jsString);
+            if (retCode != 0) {
+                return;
+            }
+            JSONObject rep = root.getJSONObject(Constant.TAG_MMTS)
+                    .getJSONObject(Constant.TAG_REP);
+            JSONObject resultList = null;
+            try {
+                resultList = rep.getJSONObject(Constant.TAG_LIST);
+                recordNumber = resultList
+                        .getJSONArray(Constant.TAG_REC).length();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                recordNumber = 0;
+
+            }
+            dataList = new ArrayList<>();
+
+            for (int j = 0; j < recordNumber; j++) {
+
+
+                JSONObject rec = resultList.getJSONArray(Constant.TAG_REC)
+                        .getJSONObject(j);
+                SysInfoData hte = new SysInfoData();
+//                private static final String TAG_ID = "ID";
+//                private static final String TAG_TITLE = "TITLE";
+//                private static final String TAG_TYPE = "TYPE";
+//                private static final String TAG_PUBLISH = "PUBLISH";
+//                private static final String TAG_SEND_TIME = "SEND_TIME";
+//                private static final String TAG_EXPIRY_TIME = "EXPIRY_TIME";
+                hte.setID(rec.getString(TAG_ID));
+                hte.setTITLE(rec.getString(TAG_TITLE));
+                hte.setTYPE(rec.getString(TAG_TYPE));
+                hte.setPUBLISH(rec.getString(TAG_PUBLISH));
+                hte.setSEND_TIME(ActivityUtils.getRealData(rec.getString(TAG_SEND_TIME)));
+                hte.setEXPIRY_TIME(ActivityUtils.getRealData(rec.getString(TAG_EXPIRY_TIME)));
+
+                dataList.add(hte);
+            }
+            //   myapp.getNyTrade().getJyData().setHoldTotalEntityList(hteList);
+          //  currentTradeEntity.getTradeData().setHoldTotalDataList(holdTotalDataList);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            parseError();
+
+        }
+
+
+    }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/common_background"
+    android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+        style="@style/toolbar"
+        />
+
+
+    <fragment
+        android:id="@+id/fragment_cycle_viewpager_content"
+        android:name="com.puxtech.weipan.util.CycleViewPager"
+
+        android:layout_width="match_parent"
+        android:layout_height="120dip" />
+
+    <include layout="@layout/fragment_home_two" />
+
+    <include layout="@layout/fragment_home_commoditylist" />
+    <SurfaceView
+        android:layout_width="0dip"
+        android:layout_height="0dip" />
+</LinearLayout>

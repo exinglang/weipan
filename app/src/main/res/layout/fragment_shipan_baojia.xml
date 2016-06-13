@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/common_devider"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/shipan_baojia_ll_padding">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="bottom|center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_buy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:text="买涨价" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="bottom|center_horizontal">
+
+            <TextView
+                android:id="@+id/tv_sell"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="0.0"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:text="买跌价" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <include layout="@layout/fragment_shipan_baojia_bottom_two_line"
+/>
+</LinearLayout>

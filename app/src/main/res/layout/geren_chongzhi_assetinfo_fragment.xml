@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/common_devider"
+    android:orientation="vertical">
+    <LinearLayout
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/shipan_baojia_ll"
+        android:orientation="horizontal">
+
+        <LinearLayout
+         style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/qichuquanyi" />
+
+            <TextView
+                android:id="@+id/tv_qichuquanyi"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dangqianquanyi" />
+
+            <TextView
+                android:id="@+id/tv_dangqianquanyi"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dangrichurujin" />
+
+            <TextView
+                android:id="@+id/tv_dangrichurujin"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        style="@style/shipan_baojia_ll_bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/shishiyinkui" />
+
+            <TextView
+                android:id="@+id/tv_shishiyinkui"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dangriyinkuiheji" />
+
+            <TextView
+                android:id="@+id/tv_dangriyinkuiheji"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/keyongzijin" />
+
+            <TextView
+                android:id="@+id/tv_keyongzijin"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        style="@style/shipan_baojia_ll_bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dongjiezijin" />
+
+            <TextView
+                android:id="@+id/tv_dongjiezijin"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/yijiaodinjin" />
+
+            <TextView
+                android:id="@+id/tv_yijiaodinjin"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dongjiedinjin" />
+
+            <TextView
+                android:id="@+id/tv_dongjiedinjin"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        style="@style/shipan_baojia_ll_bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dangrishouxufeiheji" />
+
+            <TextView
+                android:id="@+id/tv_dangrishouxufeiheji"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/dongjieshouxufei" />
+
+            <TextView
+                android:id="@+id/tv_dongjieshouxufei"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+        <View
+            style="@style/shipan_baojia_ll_gezi_line"
+            />
+        <LinearLayout
+            style="@style/shipan_baojia_ll_gezi"
+            >
+
+            <TextView
+                style="@style/shipan_baojia_ll_gezi_tv_top"
+                android:text="@string/fenxianlv" />
+
+            <TextView
+                android:id="@+id/tv_fenxianlv"
+
+                style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                android:text="@string/default_number" />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

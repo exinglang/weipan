@@ -1,0 +1,284 @@
+package com.puxtech.weipan;
+
+import android.util.SparseArray;
+
+/**
+ * Created by mac on 15/11/4.
+ */
+public class Constant {
+
+//    public static String TRADE_URL_MONI = "http://123.151.205.140:19918/tradeweb/httpXmlServlet";//
+//    public static String TRADE_URL_SHIPAN = "http://123.151.205.140:19918/tradeweb/httpXmlServlet";//
+//
+//    public static String TRADE_URL_MONI_MONEY= "http://123.151.205.140:19918/tradeweb/httpMoneyServlet";//
+//    public static String TRADE_URL_SHIPAN_MONEY = "http://123.151.205.140:19918/tradeweb/httpMoneyServlet";//
+//
+//    public static String TRADE_URL_MONI_REPORT = "http://123.151.205.140:19918/tradeweb/httpReportServlet";//
+//    public static String TRADE_URL_SHIPAN_REPORT = "http://123.151.205.140:19918/tradeweb/httpReportServlet";//
+//
+//
+//    public static final String OPEN_ACCOUNT_URL = "http://172.31.100.142:8780/open_account_front/front.do";//
+//    public static final String WEIPAN_URL = "http://172.31.100.142:8880/weipan_user_front/front.do";//
+
+
+    public static String TRADE_URL_MONI = "";//
+    public static String TRADE_URL_SHIPAN = "";//
+
+    public static String TRADE_URL_MONI_MONEY= "";//
+    public static String TRADE_URL_SHIPAN_MONEY = "";//
+
+    public static String TRADE_URL_MONI_REPORT = "";//
+    public static String TRADE_URL_SHIPAN_REPORT = "";//
+
+
+//    public static final String OPEN_ACCOUNT_URL = "http://172.31.100.142:8780/open_account_front/front.do";//
+//    public static final String WEIPAN_URL = "http://172.31.100.142:8880/weipan_user_front/front.do";//
+    public static  String OPEN_ACCOUNT_URL = "";//
+    public static  String WEIPAN_URL = "";//
+
+
+    public static  String PRICE_URL_SHIPAN = "";//
+    public static  String PRICE_URL_MONI = "";//
+
+
+    public static final int CODE_SUCCESS = 0;//成功
+
+
+    public static final int CODE_FAIL = 1001;//失败
+
+    public static final int REQUEST_SUCCESS = 1;//用于onactivity回调.默认是0.所以不能为0
+
+
+    public static String ENCODE = "UTF-8";
+    /**
+     * 行情前置机地址集合,key是zuId，value是前置机地址
+     */
+    public static String PRICE_SERVER_URL_MAP;
+
+
+    //public static final String PRICE_URL = "http://218.69.88.249:8180/quotation_query/query.do";//支持protocol,logon
+    public static final String PRICE_PROTOCOL_URL = "http://218.69.88.249:8180/quotation_query/query.do";
+    public static final String PRICE_LOGON_URL = "http://123.151.205.141:8280/quotation_query/query.do";
+    public static final String CATALOG_URL = "http://172.31.100.142:8080/quotation_catalogue/query.do";
+    public static final String APP_KEY = "f1a42c60-bae7-48e9-bed0-715b0a6ac5f9";
+
+
+
+    // public static final String PRICE_URL = "http://123.151.205.141:8180/quotation_query/query.do";//12月14更改的最新的
+
+
+    public static final String SY = "SY";
+    public static final String SP = "SP";
+    public static final String MN = "MN";
+    public static final String GR = "GR";
+
+    public static final String TAB_ID = "TAB_ID";
+    public static final String CODE = "CODE";
+    public static final String TRADE_TYPE = "TRADE_TYPE";//商品的购买方式,买入,或卖出
+
+
+    public static final String NO_OPEN = "您还未开户,请先开户";//
+    public static final String LIJIKAIHU = "立即开户";//
+    public static final String LIJIQIANYUE = "立即签约";//
+
+    public static final String NO_CONTRACT = "您还未签约";//
+
+
+    public static final String MAI_DIE = "买跌";
+    public static final String MAI_ZHANG = "买涨";
+    public static final String JIAN_CANG = "建仓";
+    public static final String KAI_CANG = "开仓";
+    public static final String PING_CANG = "平仓";
+    public static final String BUY = "购入";
+    public static final String SELL = "售出";
+    public static final String DIE = "跌";
+    public static final String ZHANG = "买涨";
+    public static final String MESSAGE = "message";//
+    public static final String RESULT = "result";//
+
+    public static final String WEI_XIN_DIR = "puxtech";//微信头像的存储文件夹名
+    public static final String WEI_XIN_HEAD_IMG = "headImg";//微信头像的文件名
+
+
+    public static final int CODE_ERROR_CERATE = 4001;
+    public static final String MESSAGE_ERROR_CERATE = "数据组装失败";
+
+    public static final int CODE_ERROR_PRASE = 4002;
+    public static final String MESSAGE_ERROR_PRASE = "数据解析失败";
+
+    public static final int CODE_ERROR_UNKNOW = 4003;
+    public static final String MESSAGE_ERROR_UNKNOW = "未知错误";
+
+    public static final int CODE_ERROR_INTERNET = 4004;
+    public static final String MESSAGE_ERROR_INTERNET = "网络错误";
+
+    public static final int CODE_ERROR_NULL = 4005;
+    public static final String MESSAGE_ERROR_NULL = "服务器返回数据为null";
+
+
+    //交易
+
+    public static final String TAG_LIST = "RESULTLIST";
+    public static final String TAG_REC = "REC";
+    public static final String TAG_REP = "REP";
+    public static final String TAG_MMTS = "MMTS";
+    public static final String TAG_RESP = "RESP";
+    public static final String TOTAL_RE = "TTLREC"; // 总记录数
+    public static final String H_ID = "H_ID"; // 持仓单号
+    public static final String CO_I = "CO_I"; // 商品代码
+    public static final String MEMBERS = "MEMBERS"; //
+    public static final String SERVICES = "SERVICES"; //
+    public static final String SERVICE = "SERVICE"; //
+
+    public static final String MEMBER = "MEMBER"; //
+    public static final String M_C = "M_C"; //
+    public static final String JYSCODE = "JYSCODE"; //
+    public static final String ENVCODE = "ENVCODE"; //
+    public static final String URL = "URL"; //
+    public static final String T_A = "T_A"; //
+
+    public static final String TRADEMODE = "TRADEMODE";
+    public static final String MIN_HQ_MOVE = "MIN_HQ_MOVE";
+
+
+    public static final String CON_U = "CON_U";
+    public static final String TY = "TY"; // 买卖标志
+    public static final String O_QTY = "O_QTY"; // 当前建立仓数量
+    public static final String C_QTY = "C_QTY"; // 当前持仓数量
+    public static final String PR = "PR"; // 建仓价
+    public static final String H_P = "H_P"; // 持仓价 <FL_P>浮动赢亏</FL_P>
+    public static final String STOP_LOSS = "STOP_LOSS"; // 止损
+    public static final String STOP_PROFIT = "STOP_PROFIT"; // 止盈
+    public static final String FL_P = "FL_P"; // 浮动赢亏
+    public static final String OR_T = "OR_T"; // 建仓时间
+    public static final String MAR_RATE = "MAR_RATE"; // 持仓保证金比例
+    public static final String MAR = "MAR"; // 保证金
+    public static final String QTY = "QTY"; // 数量
+
+    public static final String O_A = "O_A"; // 建仓均价
+    public static final String A_H = "A_H"; // 持仓均价
+    public static final String CO_N = "CO_N";
+    public static final String OR_F = "OR_F";
+    public static final String CO_ID = "CO_ID"; // 电话交易员
+    //委托挂牌
+//    public static final String OR_N = "OR_N";// 委托单号
+//    public static final String TYPE = "TYPE";// 类型
+//    public static final String PRI = "PRI";
+//    public static final String F_MAR = "F_MAR";
+//    public static final String F_FEE = "F_FEE";
+//    public static final String SE_F = "SE_F";
+//    public static final String H_NO = "H_NO";
+//    public static final String TR_I = "TR_I";
+//    public static final String O_T = "O_T";
+    //报表-成交明细
+    public static final String QUANTITY_SUM = "QUANTITY_SUM";// 平仓量合计
+    public static final String TRADE_FUNDS_SUM = "TRADE_FUNDS_SUM";// 成交金额合计
+    public static final String BS_FLAG = "BS_FLAG";// 买卖标志
+    public static final String TRADE_FUNDS = "TRADE_FUNDS";
+    public static final String TRADE_FEE = "TRADE_FEE";// 手续费
+    public static final String HOLDE_TIME = "HOLD_TIME";// 建仓时间
+    public static final String TRADE_FEE_SUM = "TRADE_FEE_SUM";// 手续费合计
+    public static final String CLEAR_DATE = "CLEAR_DATE";// 结算日期，日期型，毫秒
+    public static final String COMMODITY_NAME = "COMMODITY_NAME";// 商品名称
+    public static final String TRADE_NO = "TRADE_NO";// 平仓单号
+    public static final String QUANTITY = "QUANTITY";// 平仓量
+    public static final String PRICE = "PRICE";// 平仓价
+    //挂牌
+    public static final String T_N = "T_N"; //
+    public static final String F_QTY = "F_QTY";//冻结数量
+
+    public static final String TIME = "TIME";
+    public static final String ORDER_TYPE = "ORDER_TYPE";
+    public static final String UT_QTY = "UT_QTY";
+    public static final String T_QTY = "T_QTY";
+    public static final String F_TYPE = "F_TYPE";
+    // 交易时使用的权限 1有权限 0 是无权限
+    public static final String W_D_T_P = "W_D_T_P"; // 撤销限建权限
+
+    public static final String W_D_S_L_P = "W_D_S_L_P"; // 撤销止损权限
+    public static final String W_D_S_P_P = "W_D_S_P_P"; // 撤销止盈权限
+
+    public static final String B_X_O_P = "B_X_O_P"; // 买入限建权限
+    public static final String S_X_O_P = "S_X_O_P"; // 卖出限建权限
+
+    public static final String B_O_P = "B_O_P"; // 买入市建权限
+    public static final String B_L_P = "B_L_P"; // 买入市平权限
+    public static final String S_O_P = "S_O_P"; // 卖出市建权限
+    public static final String S_L_P = "S_L_P"; // 卖出市平权限
+
+    public static final String B_S_L = "B_S_L"; // 买入止损权限
+    public static final String B_S_P = "B_S_P"; // 买入止盈权限
+    public static final String S_S_L = "S_S_L"; // 卖出止损权限
+    public static final String S_S_P = "S_S_P"; // 卖出止盈权限
+    public static final String C_L_B_O = "C_L_B_O"; // 撮合买入限建
+    public static final String C_L_B_C = "C_L_B_C"; // 撮合买入限平
+    public static final String C_L_C_O = "C_L_C_O"; //撮合卖出限建
+    public static final String C_L_C_C = "C_L_C_C"; //撮合卖出限平
+    // 商品名称
+    public static final String STA = "STA"; // 商品状态
+    public static final String CT_S = "CT_S"; // 交易单位
+    public static final String P_MIN_H = "P_MIN_H"; // 单笔最小可委托数量
+    public static final String P_M_H = "P_M_H"; // 单笔最大可委托数量
+    public static final String M_H = "M_H"; // 最大持仓量
+    public static final String FE_A = "FE_A"; // 手续费算法：1按百分比;2按交易数量
+    public static final String FEE_V = "FEE_V"; // 手续费系数
+    public static final String FEE_T = "FEE_T"; // 手续费收取方式 1 单边建仓 2 单边平仓 3 双边建平
+    public static final String MA_A = "MA_A"; // 保证金算法：1按百分比;2按交易数量
+    public static final String MA_V = "MA_V"; // 保证金系数
+    public static final String YA_A = "YA_A"; // 延期费算法：1按百分比;2按交易数量
+    public static final String U_O_D_D_MIN = "U_O_D_D_MIN";// 用户报价点差最小值
+    public static final String U_O_D_D_MAX = "U_O_D_D_MAX";// 用户报价点差最大值
+    public static final String U_O_D_D_DF = "U_O_D_D_DF";// 用户报价点差默认值
+    public static final String STATUS = "STATUS";
+
+    public static final String SPREAD = "SPREAD"; // 最小变动价位
+    public static final String X_O_B_D_D = "X_O_B_D_D"; // 限价建仓买点差
+    public static final String X_O_S_D_D = "X_O_S_D_D"; // 限价建仓卖点差
+    public static final String STOP_L_P = "STOP_L_P"; // 止损下单点差
+    public static final String STOP_P_P = "STOP_P_P"; // 止盈下单点差
+    public static final String B_P_D_D = "B_P_D_D"; // 买点差
+    public static final String S_P_D_D = "S_P_D_D"; // 止盈下单点差
+
+    public static final String OR_N = "OR_N";// 委托单号
+    public static final String TYPE = "TYPE";// 类型
+    public static final String PRI = "PRI";
+    public static final String F_MAR = "F_MAR";
+    public static final String F_FEE = "F_FEE";
+    public static final String SE_F = "SE_F";
+    public static final String H_NO = "H_NO";
+    public static final String TR_I = "TR_I";
+    public static final String O_T = "O_T";
+
+    public static final String TR_N = "TR_N";// 成交单号
+    public static final String DEAL_SECCESS = "交易成功";
+    public static final String LIQPL = "LIQPL";// 盈亏
+    public static final String HL_N = "HL_N";// 持仓单号
+    public static final String OTHER_ID = "OTHER_ID";// 交易对象
+    public static final String TR_T = "TR_T";// 成交类型
+    public static final String TI = "TI";// 成交时间
+    public static final String FN = "FN";// 账户名称
+    public static final String RF = "RF";// 浮动盈亏
+
+    public static final String IF = "IF";// 期初余额
+    public static final String CM = "CM";// 上日保证金
+    public static final String IB = "IB";// 期初权益
+    public static final String EQT = "EQT";// 当前权益
+
+    public static final String UF = "UF";// 当前可用保证金
+    public static final String IOF = "IOF";// 当日出入金
+    public static final String PL = "PL";// 当日平仓盈亏合计
+    public static final String FEE = "FEE";// 当日手续费合计
+    public static final String RM = "RM";
+    public static final String CD = "CD";// 上日延期费
+    public static final String OR_F_M = "OR_F_M";// 冻结保证金
+    public static final String OR_F_F = "OR_F_F";// 冻结手续费
+    public static final String C_STA = "C_STA";
+    public static final String COMM = "COMM";
+    public static final String UN_LIVE = "未激活";
+    public static final String NORMAL = "正常";
+    public static final String COLD = "冻结";
+    public static final String FINAL = "终止";
+    public static final String HAS_BORN = "已创建";
+    public static final String CAPITAL = "CAPITAL";
+
+}

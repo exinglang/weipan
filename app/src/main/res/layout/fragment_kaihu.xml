@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dip">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/openaccount_contract_ll_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="真实姓名:" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/openaccount_contract_ll_text_marginLeft"
+            android:textSize="@dimen/openaccount_contract_ll_right_text" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/openaccount_contract_ll_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="身份证号:" />
+
+        <TextView
+            android:id="@+id/tv_id"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/openaccount_contract_ll_text_marginLeft"
+
+            android:textSize="@dimen/openaccount_contract_ll_right_text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/openaccount_contract_ll_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="手机号码:" />
+
+        <TextView
+            android:id="@+id/tv_phone"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/openaccount_contract_ll_text_marginLeft"
+            android:textSize="@dimen/openaccount_contract_ll_right_text" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/common_devider" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/tv_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="您还没有开户,请点此开户"
+            android:textColor="@color/home_button_orange"
+            android:textSize="17sp" />
+
+        <Button
+            android:id="@+id/bt_kaihu"
+            style="@style/bt_orange_big_textsize"
+            android:layout_width="120dp"
+            android:layout_alignParentRight="true"
+            android:drawableLeft="@drawable/edit_white"
+            android:drawablePadding="3dp"
+            android:textSize="18sp"
+
+            android:text="  去开户  " />
+    </RelativeLayout>
+
+</LinearLayout>

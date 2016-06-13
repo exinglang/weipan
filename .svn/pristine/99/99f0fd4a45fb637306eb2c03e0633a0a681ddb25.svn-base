@@ -1,0 +1,184 @@
+package com.puxtech.weipan.helper;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.PathEffect;
+
+import com.puxtech.weipan.R;
+import com.puxtech.weipan.data.entitydata.TimeLineEntity;
+import com.puxtech.weipan.data.entitydata.TimeLinePaintEntity;
+import com.puxtech.weipan.data.entitydata.TimePointEntity;
+import com.puxtech.weipan.view.TimeLinePortrait;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by mac on 15/11/19.
+ */
+public class StockChartsTimeLineViewHelper {
+
+    /**
+     * 得到最后的时间
+     *
+     * @param timeLineEntity
+     * @return
+     */
+    public static long getLastLongTimeFromTimeLineEntity(TimeLineEntity timeLineEntity) {
+        List<TimePointEntity> allPointList = timeLineEntity.getRecordList();
+        TimePointEntity lastPoint = allPointList
+                .get(allPointList.size() - 1);
+        String time = lastPoint.getTradeDate() + "";
+        if (lastPoint.getTime() < 1000) {
+            time = time + "0" + lastPoint.getTime();
+        } else {
+            time = time + lastPoint.getTime();
+        }
+        long timeLong = Long.parseLong(time);
+        return timeLong;
+    }
+
+    /**
+     * 计算并设置 timeLineEntity中最高和最低价
+     *
+     * @param timeLineEntity
+     */
+    public void setHighestAndLowestPrice(TimeLineEntity timeLineEntity) {
+        List<TimePointEntity> points = timeLineEntity.getRecordList();
+        if (points != null && points.size() > 0) {
+            double max = Double.MIN_VALUE, min = Double.MAX_VALUE, lastPrice, avgPrice;
+            for (int i = 0, len = points.size(); i < len; i++) {
+                lastPrice = points.get(i).getLastPrice();
+                avgPrice = points.get(i).getAveragePrice();
+                if (lastPrice > max) max = lastPrice;
+                if (avgPrice > max) max = avgPrice;
+
+                if (lastPrice < min) min = lastPrice;
+                if (avgPrice < min) min = avgPrice;
+            }
+            timeLineEntity.setHighestPrice(max);
+            timeLineEntity.setLowestPrice(min);
+        }
+    }
+
+    /**
+     * 计算每个横格子的价钱
+     */
+    public double calPriceSpacing(TimeLineEntity timeLineEntity, double Y_COUNT) {
+        // 计算 最左边的价钱间隔，根据涨或跌的最大的那个确定间隔价钱数
+        double priceSpacing;
+        double maxPrice = timeLineEntity.getHighestPrice();
+        double minPrice = timeLineEntity.getLowestPrice();
+        double closePrice = timeLineEntity.getYesterdayClosePrice();
+        if ((maxPrice - closePrice) > (closePrice - minPrice)) {
+            priceSpacing = (maxPrice - closePrice) / (Y_COUNT / 2);
+        } else {
+            priceSpacing = (closePrice - minPrice) / (Y_COUNT / 2);
+        }
+        if (priceSpacing == 0) {
+            priceSpacing += 1;
+        }
+        // 增大到110%
+        priceSpacing = priceSpacing * 1.1f;
+        return priceSpacing;
+    }
+
+    /**
+     * 检测两个timeLineEntity的最高最低是否相同
+     * @param timeLineEntity
+     * @param newEntity
+     * @return
+     */
+    public boolean highestOrLowestHasChanged(TimeLineEntity timeLineEntity, TimeLineEntity newEntity) {
+        double oldHighest = timeLineEntity.getHighestPrice();
+        double oldLowest = timeLineEntity.getLowestPrice();
+        double newHighest = newEntity.getHighestPrice();
+        double newLowest = newEntity.getLowestPrice();
+        if (oldHighest != newHighest) {
+            return true;
+        }
+        if (oldLowest != newLowest) {
+            return true;
+        }
+        return false;
+    }
+
+    public TimeLinePaintEntity getTimeLinePaint(Context context) {
+        TimeLinePaintEntity paintEntity = new TimeLinePaintEntity();
+
+        Paint linePaint = new Paint();
+        linePaint.setAntiAlias(true);
+        linePaint.setColor(context.getResources().getColor(
+                R.color.text_grey));
+        linePaint.setStrokeWidth(1);
+        paintEntity.setLinePaint(linePaint);
+
+        Paint linePaintDashed = new Paint();
+        linePaintDashed.setAntiAlias(true);
+        linePaintDashed.setColor(context.getResources().getColor(
+                R.color.text_grey));
+        linePaintDashed.setStrokeWidth(1);
+        PathEffect effects = new DashPathEffect(new float[]{4, 4, 4, 4}, 1);
+        linePaintDashed.setPathEffect(effects);
+        paintEntity.setLinePaintDashed(linePaintDashed);
+
+        Paint redTextPaint = new Paint();
+        redTextPaint.setAntiAlias(true);
+        redTextPaint.setColor(context.getResources().getColor(
+                R.color.price_text_red_small));
+        redTextPaint.setTextAlign(Paint.Align.RIGHT);
+        redTextPaint.setStrokeWidth(1);
+        redTextPaint.setTextSize(20);
+        paintEntity.setRedTextPaint(redTextPaint);
+
+
+        Paint greenTextPaint = new Paint();
+        greenTextPaint.setAntiAlias(true);
+        greenTextPaint.setColor(context.getResources().getColor(
+                R.color.price_text_green_small));
+        greenTextPaint.setStrokeWidth(1);
+        greenTextPaint.setTextAlign(Paint.Align.RIGHT);
+        greenTextPaint.setTextSize(20);
+        paintEntity.setGreenTextPaint(greenTextPaint);
+
+
+        Paint whiteTextPaint = new Paint();
+        whiteTextPaint.setAntiAlias(true);
+        whiteTextPaint.setColor(context.getResources().getColor(
+                R.color.black));
+        whiteTextPaint.setStrokeWidth(1);
+        whiteTextPaint.setTextAlign(Paint.Align.RIGHT);
+        whiteTextPaint.setTextSize(20);
+        paintEntity.setWhiteTextPaint(whiteTextPaint);
+
+
+        Paint pricePaint = new Paint();
+        pricePaint.setColor(context.getResources().getColor(
+                R.color.time_line_price));
+        pricePaint.setAntiAlias(true);
+        pricePaint.setStrokeWidth(1.0f);
+        pricePaint.setStyle(Paint.Style.STROKE);
+        paintEntity.setPricePaint(pricePaint);
+
+
+        Paint priceFillPaint = new Paint();
+        priceFillPaint.setColor(context.getResources().getColor(
+                R.color.time_line_price_fill));
+        priceFillPaint.setStyle(Paint.Style.FILL);
+        paintEntity.setPriceFillPaint(priceFillPaint);
+
+
+        Paint averagePricePaint = new Paint();
+        averagePricePaint.setColor(context.getResources().getColor(
+                R.color.time_line_average));
+        averagePricePaint.setAntiAlias(true);
+        averagePricePaint.setStrokeWidth(1.0f);
+        averagePricePaint.setStyle(Paint.Style.STROKE);
+        paintEntity.setAveragePricePaint(averagePricePaint);
+        return  paintEntity;
+    }
+
+
+}

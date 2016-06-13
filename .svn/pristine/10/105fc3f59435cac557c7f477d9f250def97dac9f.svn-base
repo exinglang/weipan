@@ -1,0 +1,624 @@
+package com.puxtech.weipan.network;
+
+import android.content.Context;
+
+import com.puxtech.weipan.ResponseData.HeartBeatResponseData;
+import com.puxtech.weipan.ResponseData.SysInfoDetailResponseData;
+import com.puxtech.weipan.ResponseData.SysInfoResponseData;
+import com.puxtech.weipan.ResponseData.TradeResponseData;
+import com.puxtech.weipan.data.AccountInfoResponseData;
+import com.puxtech.weipan.data.CommodityResponseData;
+import com.puxtech.weipan.data.DealResponseData;
+import com.puxtech.weipan.data.HoldDetailResponseData;
+import com.puxtech.weipan.data.HoldTotalResponseData;
+import com.puxtech.weipan.data.LogonResponseData;
+import com.puxtech.weipan.ResponseData.OtherFirmResponseData;
+import com.puxtech.weipan.data.ReportDealResponseData;
+import com.puxtech.weipan.data.TradeEntity;
+import com.puxtech.weipan.data.TrustResponseData;
+import com.puxtech.weipan.util.ActivityUtils;
+import com.puxtech.weipan.util.MD5;
+import com.puxtech.weipan.util.TradeUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Created by zuochenyong on 15/11/4.
+ */
+public class HttpManagerTrade extends HttpManagerBase {
+    TradeEntity currentTradeEntity;
+
+    public HttpManagerTrade(Context context, TradeEntity currentTradeEntity) {
+        super(context);
+
+        this.currentTradeEntity = currentTradeEntity;
+
+    }
+    public HttpManagerTrade(Context context) {
+        super(context);
+
+
+    }
+
+    //请求登陆
+    public LogonResponseData requestLogon(String username, String pwd,
+                                          String checkcode, String codeid) {
+        LogonResponseData responseData = new LogonResponseData();
+        String requestData;
+        String rName = "logon";
+        byte[] logonKey;
+        try {
+            logonKey = MD5.getMD5(username + pwd);// 登录加解密密钥
+            HashMap<String, String> map = new HashMap<>();
+            long time = System.currentTimeMillis();
+            map.put("USER_ID", username);
+            map.put("PASSWORD", pwd);
+            map.put("VALID_CODE", checkcode);
+            map.put("VALID_UUID", codeid);
+            map.put("LOGONTIME", time + "");
+            map.put("REGISTER_WORD", "");
+            map.put("VERSIONINFO", "");
+            map.put("CLT_TOKEN", TradeUtils.getToken(time, username, pwd, logonKey));
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr, logonKey);
+        return responseData;
+    }
+
+
+    //请求商品信息
+    public CommodityResponseData commodityRequest(String commodityCode) {
+        CommodityResponseData responseData = new CommodityResponseData();
+        String requestData;
+        String rName = "commodity_query";
+        try {
+
+            HashMap<String, String> map = new HashMap<>();
+            map.put("COMMODITY_ID", commodityCode);
+            map.put("A_N", "");
+            map.put("P_P", "");
+
+            //  return
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    /**
+     * 请求持仓明细
+     *
+     * @param start         从第几条开始
+     * @param num           请求数量
+     * @param commodityCode 商品代码
+     */
+
+    public HoldDetailResponseData holdDetailRequest(int start, String num, String commodityCode) {
+        HoldDetailResponseData responseData = new HoldDetailResponseData();
+        String requestData;
+        String rName = "holding_detail_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("COMMODITY_ID", commodityCode);
+            map.put("MARKET_ID", "1");
+            map.put("STARTNUM", String.valueOf(start));
+            map.put("RECCNT", num);
+            map.put("SORTFLD", "");
+            map.put("ISDESC", "");
+            map.put("A_N", "");
+            map.put("P_P", "");
+
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(context, currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    /**
+     * 请求市价建仓/平仓
+     */
+
+    public TradeResponseData requestShiJiaTrade(String stuffCode, boolean isBuy, String num,
+                                                String cut, boolean isBuild, String closemode, String holding_id, double price) {
+        TradeResponseData responseData = new TradeResponseData();
+        String requestData;
+        String rName = "order_s";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("BUY_SELL", isBuy ? "1" : "2");
+            map.put("COMMODITY_ID", stuffCode);
+            map.put("PRICE", String.valueOf(price));
+            map.put("QTY", num);
+            map.put("OTHER_ID", myapp.getCurrentTradeEntity().getTradeData().getOtherFirmData().getE_M_ID());
+            map.put("SETTLE_BASIS", isBuild ? "1" : "2");
+            map.put("CLOSEMODE", closemode);
+            map.put("HOLDING_ID", holding_id);
+            if (cut.length() <= 0)
+                cut = "0";
+            map.put("DOT_DIFF", cut);
+            map.put("A_N", "");
+            map.put("P_P", "");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    /**
+     * 请求指价建仓/平仓
+     */
+
+    public TradeResponseData requesthiJiaTrade(String signal, boolean isBuy, String price,
+                                               String num, String stop_loss, String stop_profit) {
+        TradeResponseData responseData = new TradeResponseData();
+        String requestData;
+        String rName = "order_x";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("BUY_SELL", isBuy ? "1" : "2");
+            map.put("COMMODITY_ID", signal);
+            map.put("PRICE", price);
+            map.put("QTY", num);
+            map.put("OTHER_ID", myapp.getCurrentTradeEntity().getTradeData().getOtherFirmData().getE_M_ID());
+            map.put("STOP_LOSS", stop_loss);
+            map.put("STOP_PROFIT", stop_profit);
+            map.put("VALIDITY_TYPE", "0");
+            map.put("A_N", "");
+            map.put("P_P", "");
+          //  return
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    /**
+     * 请求持仓汇总
+     *
+     * @param start 开始位置
+     */
+    public HoldTotalResponseData holdTotalRequest(int start, String commodityCode) {
+        HoldTotalResponseData responseData = new HoldTotalResponseData();
+        String requestData;
+        String rName = "holding_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+
+            map.put("STARTNUM", String.valueOf(start));
+            map.put("RECCNT", "");
+            map.put("COMMODITY_ID", commodityCode);
+            map.put("MARKET_ID", "1");
+            map.put("SORTFLD", "");
+            map.put("SORTFLD", "");
+            map.put("A_N", "");
+            map.put("P_P", "");
+
+//            return //
+            requestData =getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+
+    /**
+     * 委托查询
+     */
+    public TrustResponseData trustRequest() {
+        TrustResponseData responseData = new TrustResponseData();
+        String requestData;
+        String rName = "my_order_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("OR_OC", "");// 开平仓（1开仓2平仓，空全部）1
+            map.put("BUY_SELL", "");// 买、卖类型 买卖(1/2)（空表示所有）
+            map.put("OR_TP", "");// 委托单类型（1市价2指价，空全部）
+            map.put("OR_ST", "1");// 1已委托2已成交3已撤单4部分成交5部分成交后撤单，空全部
+            map.put("STARTNUM", "1");// 1
+            map.put("ORDER_NO", "");
+            map.put("MARKET_ID", "");
+            map.put("RECCNT", "0");
+            map.put("SORTFLD", "");
+            map.put("ISDESC", "0");
+            map.put("UT", "");
+            map.put("A_N", "");
+            map.put("P_P", "");
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(context, currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    /**
+     * 成交查询
+     *
+     * @param start 开始位置
+     * @param end   结束位置
+     * @return
+     */
+    public DealResponseData dealRequest(int start, int end) {
+        DealResponseData responseData = new DealResponseData();
+        String requestData;
+        String rName = "tradequery";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("COMMODITY_ID", "");// 商品类别
+            map.put("STARTNUM",start+"");// 开始条数
+            map.put("BUY_SELL", "");// 买卖方向
+            map.put("OR_OC", "");// 建仓平仓
+            map.put("MARKET_ID", "");// 建仓平仓
+            map.put("LAST_TRADE_ID", "");// 建仓平仓
+            map.put("RECCNT", end+"");
+            map.put("SORTFLD", "");
+            map.put("ISDESC", "");
+            map.put("A_N", "");
+            map.put("P_P", "");
+          //  retur
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+        return responseData;
+    }
+
+    /**
+     * 报表-成交查询
+     *
+     * @param start 开始位置
+     * @return
+     */
+    public ReportDealResponseData reportDealRequest(String startTime, String endTime,
+                                                    int start, int num) {
+        ReportDealResponseData responseData = new ReportDealResponseData();
+        String requestData;
+        String rName = "report_customerorders_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("ST", startTime);
+            map.put("ET", endTime);
+            map.put("STARTNUM", start+"");
+            map.put("RECCNT", num+"");
+            map.put("SORTFLD", "");
+            map.put("ISDESC", "");
+
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getReportUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+        return responseData;
+    }
+
+    /**
+     * 撤销委托单
+     */
+    public TradeResponseData cancelTrustRequest(String order_id) {
+        TradeResponseData responseData = new TradeResponseData();
+        String requestData;
+        String rName = "order_wd";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("ORDER_NO", order_id);
+            map.put("A_N", "");
+            map.put("P_P", "");
+//            return
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    //账户信息查询
+    public AccountInfoResponseData accountInfoRequest() {
+        AccountInfoResponseData responseData = new AccountInfoResponseData();
+        String requestData;
+        String rName = "firm_info";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+
+    public OtherFirmResponseData otherFirmRequest() {
+        OtherFirmResponseData responseData = new OtherFirmResponseData();
+        String requestData;
+        String rName = "other_firm_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("IS_D", "1");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(currentTradeEntity, responseStr);
+        return responseData;
+    }
+    //公告列表查询
+    public SysInfoResponseData requestSysInfo() {
+        SysInfoResponseData responseData = new SysInfoResponseData();
+        String requestData;
+        String rName = "notice_list_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("EFFECTIVE", "1");
+            map.put("TYPE", "");
+            map.put("ST", ActivityUtils.getPreOneMonth000000());
+            map.put("ET", ActivityUtils.getToday235959());
+            map.put("EXPIRE_ST", "");
+            map.put("EXPIRE_ET", "");
+            map.put("TITLE", "");
+            map.put("STARTNUM", "1");
+            map.put("RECCNT", "");
+            map.put("ISDESC", "");
+            map.put("SORTFLD", "");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getReportUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+        return responseData;
+    }
+//公告详细查询
+    public SysInfoDetailResponseData requestSysInfoDetail(String id) {
+        SysInfoDetailResponseData responseData = new SysInfoDetailResponseData();
+        String requestData;
+        String rName = "notice_content_query";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("NOTICE_ID", id);
+            map.put("TYPE", "");
+            map.put("EFFECTIVE", "1");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), currentTradeEntity.getReportUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+        return responseData;
+    }
+    public HeartBeatResponseData heartBeatRequest(TradeEntity tradeEntity, int firstLogin, long broadId, long dealCount, long lastid) {
+        HeartBeatResponseData responseData = new HeartBeatResponseData();
+        String requestData;
+        String rName = "SYS_TIME_QUERY";
+        try {
+            JSONObject json = new JSONObject();
+            json.put("ver", "1.0");
+            json.put("uid",tradeEntity.getUserId());
+            json.put("broadcast", broadId);
+            json.put("tradecnt", dealCount);
+            json.put("sessionid", tradeEntity.getOtherData().getSid());
+            json.put("curlogon",firstLogin);
+            json.put("agencyno", "");
+            json.put("phonepwd", "");
+            json.put("lastid", lastid);
+            json.put("CO_I", "");
+            requestData = json.toString();
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = httpSender.requestJson(requestData.getBytes(), tradeEntity.getTradeUrl(), rName);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+        return responseData;
+    }
+
+
+    // 将map中的值,组成json
+    protected String getRequestData(HashMap<String, String> map, String rName) {
+        JSONObject json = new JSONObject();
+        String req = null;
+        try {
+            Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> m = it.next();
+                String key = m.getKey();
+                String value = m.getValue();
+                json.put(key, value);
+            }
+            req = jsonRequestPutHead(json, rName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return req;
+
+    }
+
+    // 给一些复用的KEY赋值
+    protected String jsonRequestPutHead(JSONObject json, String name)
+            throws JSONException {
+        // TODO Auto-generated method stub
+        json.put("id", ActivityUtils.getId(myapp));
+        json.put("name", name);
+        if (!(name.equals("get_version") || name.equals("logon"))) {
+            // get_version和logon没有这两个属性
+            json.put("SESSION_ID", myapp.getCurrentTradeEntity().getOtherData().getSid());
+            json.put("USER_ID", myapp.getCurrentTradeEntity().getUserId());
+        }
+        JSONObject rep = new JSONObject();
+        rep.put("REQ", json);
+        if (!name.equals("get_version")) {
+            // get_version没有此键值
+            rep.put("version", "1.0");
+        }
+        JSONObject mmts = new JSONObject();
+        mmts.put("MMTS", rep);
+//        TradeLogRecorder tlr = new TradeLogRecorder();
+//        tlr.saveLog(myapp, "请求:"+json.toString());
+        return mmts.toString();
+    }
+}

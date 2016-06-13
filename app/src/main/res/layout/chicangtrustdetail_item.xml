@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/holddetail_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/fab_margin"
+
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:layout_centerVertical="true"
+                    android:textSize="15dp"
+                    android:layout_height="wrap_content"
+                    android:text="test前海油"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/tv_time"
+                    android:layout_width="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/tv_name"
+                    android:text="2008.10.10" />
+
+                <Button
+                    android:id="@+id/bt_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="取消委托" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+
+                    style="@style/shipan_baojia_ll_no_bg"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/shipan_baojia_ll_gezi">
+
+                        <TextView
+                            style="@style/shipan_baojia_ll_gezi_tv_top"
+                            android:text="@string/weituojia" />
+
+                        <TextView
+                            android:id="@+id/tv_weituojia"
+
+                            style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                            android:text="@string/default_number" />
+
+                    </LinearLayout>
+
+
+                    <LinearLayout style="@style/shipan_baojia_ll_gezi">
+
+                        <TextView
+                            style="@style/shipan_baojia_ll_gezi_tv_top"
+                            android:text="@string/weituoshuliang" />
+
+                        <TextView
+                            android:id="@+id/tv_weituoshuliang"
+
+                            style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                            android:text="@string/default_number" />
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/shipan_baojia_ll_bottom_no_bg"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/shipan_baojia_ll_gezi">
+
+                        <TextView
+                            style="@style/shipan_baojia_ll_gezi_tv_top"
+                            android:text="@string/dongjiebaozhenjin" />
+
+                        <TextView
+                            android:id="@+id/tv_dongjiebaozhenjin"
+
+                            style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                            android:text="@string/default_number" />
+
+                    </LinearLayout>
+
+
+                    <LinearLayout style="@style/shipan_baojia_ll_gezi">
+
+                        <TextView
+                            style="@style/shipan_baojia_ll_gezi_tv_top"
+                            android:text="@string/dongjieshouxufei" />
+
+                        <TextView
+                            android:id="@+id/tv_dongjieshouxufei"
+
+                            style="@style/shipan_baojia_ll_gezi_tv_bottom"
+                            android:text="@string/default_number" />
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+
+</LinearLayout>

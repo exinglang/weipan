@@ -1,0 +1,7 @@
+<resources>
+    <string name="title_activity_wei_xin_login">WeiXinLogin</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="confirm">确定</string>
+
+
+</resources>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/holddetail_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/fab_margin"
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_time"
+
+                    style="@style/item_title_textview_black"
+
+                    android:layout_marginLeft="20dp"
+                    android:text="时间" />
+
+                <TextView
+                    style="@style/item_title_textview_black"
+
+                    android:layout_toLeftOf="@id/tv_no"
+                    android:text="流水号" />
+
+                <TextView
+                    android:id="@+id/tv_no"
+                    style="@style/item_title_textview_black"
+                    android:layout_alignParentRight="true"
+
+                    android:layout_marginLeft="3dp"
+                    android:text="2008.10.10" />
+            </RelativeLayout>
+
+            <LinearLayout
+                style="@style/shipan_baojia_ll_bottom_no_bg"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/shipan_baojia_ll_gezi"
+                    android:layout_weight="5">
+
+                    <TextView
+                        style="@style/shipan_baojia_ll_gezi_tv_top"
+                        android:text="@string/yinhangmingchen" />
+
+                    <TextView
+                        android:id="@+id/tv_bankname"
+                        style="@style/shipan_baojia_ll_gezi_tv_bottom" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    style="@style/shipan_baojia_ll_gezi"
+                    android:layout_weight="6">
+
+                    <TextView
+                        style="@style/shipan_baojia_ll_gezi_tv_top"
+                        android:text="@string/leixing" />
+
+                    <TextView
+                        android:id="@+id/tv_type"
+
+                        style="@style/shipan_baojia_ll_gezi_tv_bottom" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    style="@style/shipan_baojia_ll_gezi"
+                    android:layout_weight="5">
+
+                    <TextView
+                        style="@style/shipan_baojia_ll_gezi_tv_top"
+                        android:text="@string/jine" />
+
+                    <TextView
+                        android:id="@+id/tv_amount"
+
+                        style="@style/shipan_baojia_ll_gezi_tv_bottom" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/shipan_baojia_ll_gezi"
+                    android:layout_weight="6">
+
+                    <TextView
+                        style="@style/shipan_baojia_ll_gezi_tv_top"
+                        android:text="@string/zhuangtai" />
+
+                    <TextView
+                        android:id="@+id/tv_state"
+
+                        style="@style/shipan_baojia_ll_gezi_tv_bottom" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/shipan_baojia_ll_gezi"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="5"
+                android:gravity="left">
+
+                <TextView
+                    style="@style/shipan_baojia_ll_gezi_tv_top"
+                    android:text="@string/beizhu" />
+
+                <TextView
+                    android:id="@+id/tv_memo"
+                    style="@style/shipan_baojia_ll_gezi_tv_bottom" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

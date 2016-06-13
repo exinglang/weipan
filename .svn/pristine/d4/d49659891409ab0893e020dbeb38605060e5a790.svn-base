@@ -1,0 +1,417 @@
+package com.puxtech.weipan.view;
+
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.PathEffect;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+
+
+import com.puxtech.weipan.MyApplication;
+import com.puxtech.weipan.R;
+import com.puxtech.weipan.data.entitydata.KPointEntity;
+import com.puxtech.weipan.util.PriceUtil;
+import com.puxtech.weipan.util.ScreenSizeUtil;
+import com.puxtech.weipan.widget.CustomViewPager;
+
+import java.util.List;
+
+/**
+ * <b>Description:</b>
+ * <p>
+ * 十字线
+ * </p>
+ * 
+ * @Company 北京乐赢索思软件科技有限责任公司
+ * @author fanshuo
+ * @date 2014-1-23 下午5:27:38
+ * @version V1.0
+ * @FileName KLineCrossLineView.java
+ * @Package com.happyinsource.htjy.android.view
+ */
+@SuppressWarnings("ALL")
+public class KLineCrossLineView extends SurfaceView implements
+		SurfaceHolder.Callback {
+
+	private static final int TEXT_RECT_WIDTH = 60;//十字线文字整个区域的宽度，单位：dp
+	private static final int TEXT_RECT_HEIGHT = 80;//十字线文字整个区域的高度，单位：dp
+	private static final int TEXT_ROWS_COUNT = 7;//十字线文字区域一共多少行
+	boolean touchLeftArea = true;
+	
+	private SurfaceHolder holder;
+	private Context context;
+	private Paint linePaint;// 十字线
+	private Paint valueTextPaint;// 带颜色数值
+	private Paint nameTextPaint;// 白色名称
+	private List<KPointEntity> curPointList;// 当前显示的柱子
+	private boolean canTouch = false;// 是否消耗touch事件，即：是否将touch事件传递里面一层（k线图的View）,此view一直为visible状态，依靠这个变量来确定是否响应触摸事件
+
+	private CustomViewPager viewPager;
+	private OnKPointSelected onKPointSelectedListener;
+
+
+	public interface OnKPointSelected {
+		/**
+		 * 十字线滑动到某个柱子时的回调
+		 */
+		public void onKPointSelected(KPointEntity kPoint);
+		
+		/**
+		 * 当十字线消失的时候回调
+		 */
+		public void onClearCrossLine();
+	}
+
+	public KLineCrossLineView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init(context);
+	}
+
+	public KLineCrossLineView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
+
+	public KLineCrossLineView(Context context) {
+		super(context);
+		init(context);
+	}
+
+	/**
+	 * 初始化构造函数
+	 * 
+	 * @param context
+	 */
+	private void init(Context context) {
+		this.context = context;
+		holder = getHolder();
+		holder.addCallback(this);
+		setZOrderOnTop(true);
+		holder.setFormat(PixelFormat.TRANSPARENT);
+		initPaint();
+	}
+
+	private void initPaint() {
+		float textSize = ScreenSizeUtil.Dp2Px(context, TEXT_RECT_HEIGHT)/TEXT_ROWS_COUNT;
+		
+		this.linePaint = new Paint();
+		this.linePaint.setAntiAlias(true);
+		this.linePaint.setColor(getResources().getColor(R.color.cross_line));
+		this.linePaint.setStyle(Paint.Style.STROKE);
+		PathEffect effects = new DashPathEffect(new float[] { 5, 5, 5, 5 }, 1);
+		this.linePaint.setPathEffect(effects);
+		this.linePaint.setStrokeWidth(2);
+
+		this.valueTextPaint = new Paint();
+		this.valueTextPaint.setAntiAlias(true);
+		this.valueTextPaint.setColor(getResources().getColor(R.color.text_red));
+		this.valueTextPaint.setTextAlign(Align.RIGHT);
+		this.valueTextPaint.setStrokeWidth(1.0f);
+		this.valueTextPaint.setTextSize(textSize);
+
+		this.nameTextPaint = new Paint();
+		this.nameTextPaint.setAntiAlias(true);
+		this.nameTextPaint.setColor(Color.BLACK);
+		this.nameTextPaint.setStrokeWidth(1);
+		this.nameTextPaint.setTextAlign(Align.LEFT);
+		this.nameTextPaint.setTextSize(textSize);
+	}
+
+
+	public void startDrawCrossLine(float x) {
+		initPaint();
+		drawAll(x);
+	}
+
+	private void drawAll(float x) {
+		Canvas canvas = holder.lockCanvas();
+		if(canvas==null)return;
+		KPointEntity nearPoint = getPointX(x);
+		if (nearPoint != null) {
+			checkTouchPoint(nearPoint.getCenterX());
+			drawCrossLine(canvas, nearPoint.getCenterX(), nearPoint.getCloseY());
+			drawText(canvas, nearPoint);
+			//回调KLinePortrait
+			onKPointSelectedListener.onKPointSelected(nearPoint);
+		}
+		holder.unlockCanvasAndPost(canvas);
+	}
+	
+
+	private void drawCrossLine(Canvas canvas, float x, float y) {
+		float screenWidth = 0;
+		float screenHeight = 0;
+		// 横屏
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			screenWidth = ScreenSizeUtil.getScreenHeight(context);
+			screenHeight = ScreenSizeUtil.getScreenWidth(context);
+		}
+		// 竖屏
+		else {
+			screenWidth = ScreenSizeUtil.getScreenWidth(context);
+			screenHeight = ScreenSizeUtil.getScreenHeight(context);
+		}
+		canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+		canvas.drawLine(0, y, screenWidth, y, linePaint);
+		canvas.drawLine(x, 0, x, screenHeight, linePaint);
+	}
+
+	float startX, startY, endX, endY;
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (!canTouch) {
+			return super.onTouchEvent(event);
+		}
+		//
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			startX = event.getX();
+			startY = event.getY();
+			endX = event.getX();
+			endY = event.getY();
+			break;
+		case MotionEvent.ACTION_MOVE:
+			endX = event.getX();
+			endY = event.getY();
+			drawAll(endX);
+			break;
+		case MotionEvent.ACTION_UP:
+			endX = event.getX();
+			endY = event.getY();
+			if (Math.abs(endX - startX) < 10 && Math.abs(endY - startY) < 10) {
+				clearCrossLine();
+				onKPointSelectedListener.onClearCrossLine();
+			}
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
+	private void checkTouchPoint(float x){
+		float screenWidth;
+		// 横屏
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			screenWidth = ScreenSizeUtil.getScreenHeight(context);
+		}
+		else{
+			screenWidth = ScreenSizeUtil.getScreenWidth(context);
+		}
+		float centerX = screenWidth/2;
+		if(x <= centerX){
+			touchLeftArea = true;
+		}
+		else{
+			touchLeftArea = false;
+		}
+	}
+	/**
+	 * 清除十字线
+	 */
+	public void clearCrossLine() {
+		Canvas canvas = holder.lockCanvas();
+		if(canvas!= null){
+			canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+			holder.unlockCanvasAndPost(canvas);
+			canTouch = false;
+			if (viewPager != null) {
+				viewPager.setCanScroll(true);
+			}
+		}
+	}
+
+	/**
+	 * 查找最近点的x坐标
+	 * 
+	 * @return
+	 */
+	private KPointEntity getPointX(float x) {
+		if (curPointList == null) {
+			return null;
+		}
+		KPointEntity retEntity = null;
+		float deltaX = 10000;
+		for (int i = 0; i < curPointList.size(); i++) {
+			KPointEntity item = curPointList.get(i);
+			if (Math.abs((item.getCenterX() - x)) < deltaX) {
+				deltaX = Math.abs((item.getCenterX() - x));
+				retEntity = item;
+			}
+		}
+		return retEntity;
+	}
+
+	private void drawText(Canvas canvas, KPointEntity nearPoint) {
+		//整个文字部分的宽高
+		float rowHeightOffset = ScreenSizeUtil.Dp2Px(context, 4);//每一行文字之间的空隙高度
+		float rectWidth = ScreenSizeUtil.Dp2Px(context, TEXT_RECT_WIDTH);
+		float rectHeight = ScreenSizeUtil.Dp2Px(context, TEXT_RECT_HEIGHT) + rowHeightOffset*TEXT_ROWS_COUNT;
+		float width = getWidth();
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setAlpha(180);
+		paint.setColor(context.getResources().getColor(R.color.common_background));
+		//确定矩形的顶点位置
+		float rectLeft, rectRight;
+		float margin=10;
+		if(touchLeftArea){
+			rectLeft = width - rectWidth-10;
+			rectRight = width -1-10;
+		}
+		else{
+			rectLeft = 10;
+			rectRight = 10 + rectWidth;
+		}
+		Rect r = new Rect((int) rectLeft, 10, (int) rectRight, (int)rectHeight);
+		canvas.drawRect(r, paint);
+		//每一行的高度为字体大小+偏移量
+		float rowHeight = rectHeight/7;
+		
+		int rowCount = 1;
+		// 画文字
+		// 日期
+		canvas.drawText(nearPoint.getFormatDate(), rectLeft, rowHeight*rowCount,
+				nameTextPaint);
+		rowCount++;
+		//如果是201403170600这种的才画时间，如果是20140317这种没有小时分钟的就不用画
+		if(nearPoint.getTime() > 100000000){
+			// 时间
+			canvas.drawText(nearPoint.getFormatTime(), rectLeft, rowHeight*rowCount,
+					nameTextPaint);
+			rowCount++;
+		}
+		// 开
+		canvas.drawText("开", rectLeft, rowHeight*rowCount, nameTextPaint);
+		getPaintColor(valueTextPaint, nearPoint.getOpenUpOrDown());
+		canvas.drawText(formatPrice(nearPoint.getOpenPrice()), rectRight, rowHeight*rowCount,
+				valueTextPaint);
+		rowCount++;
+		//高
+		canvas.drawText("高", rectLeft, rowHeight*rowCount, nameTextPaint);
+		getPaintColor(valueTextPaint, nearPoint.getHighUpOrDown());
+		canvas.drawText(formatPrice(nearPoint.getHighestPrice()), rectRight, rowHeight*rowCount,
+				valueTextPaint);
+		rowCount++;
+		// 低
+		canvas.drawText("低", rectLeft, rowHeight*rowCount, nameTextPaint);
+		getPaintColor(valueTextPaint, nearPoint.getLowUpOrDown());
+		canvas.drawText(formatPrice(nearPoint.getLowestPrice()), rectRight, rowHeight*rowCount,
+				valueTextPaint);
+		rowCount++;
+		// 收
+		canvas.drawText("收", rectLeft, rowHeight*rowCount, nameTextPaint);
+		getPaintColor(valueTextPaint, nearPoint.getUpOrDown());
+		canvas.drawText(formatPrice(nearPoint.getClosePrice()), rectRight, rowHeight*rowCount,
+				valueTextPaint);
+		rowCount++;
+		//幅
+		canvas.drawText("幅", rectLeft, rowHeight*rowCount, nameTextPaint);
+		canvas.drawText(nearPoint.getChange(), rectRight, rowHeight*rowCount, valueTextPaint);
+	}
+
+    private String formatPrice(double price) {
+        return PriceUtil.formatPrice(context, price, getCommodityNumber());
+    }
+
+	private void getPaintColor(Paint paint, int UpOrDown) {
+		switch (UpOrDown) {
+		case 1: {
+			paint.setColor(context.getResources().getColor(R.color.text_red));
+			break;
+		}
+		case 0: {
+			paint.setColor(Color.BLACK);
+			break;
+		}
+		case -1: {
+			paint.setColor(context.getResources().getColor(R.color.text_green));
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	// //////////////////////////////////////////////////////////////////////
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		setVisibility(View.INVISIBLE);
+	}
+//	protected void onVisibilityChanged(View changedView, int visibility) {
+//		super.onVisibilityChanged(changedView, visibility);
+//		if(visibility==View.VISIBLE){
+//			setVisibility(View.VISIBLE);
+//			setZOrderOnTop(true);
+//
+//
+//		}else{
+//			setZOrderOnTop(false);
+//
+//			setVisibility(View.INVISIBLE);
+//			Log.i("doitKchange", "INVISIBLE");
+//
+//		}
+//	}
+	public void setCurPointList(List<KPointEntity> curPointList) {
+		this.curPointList = curPointList;
+	}
+
+	public boolean isCanTouch() {
+		return canTouch;
+	}
+
+	public void setCanTouch(boolean canTouch) {
+		this.canTouch = canTouch;
+	}
+
+	public CustomViewPager getViewPager() {
+		return viewPager;
+	}
+
+	public void setViewPager(CustomViewPager viewPager) {
+		this.viewPager = viewPager;
+	}
+
+	public OnKPointSelected getOnKPointSelectedListener() {
+		return onKPointSelectedListener;
+	}
+
+	public void setOnKPointSelectedListener(
+			OnKPointSelected onKPointSelectedListener) {
+		this.onKPointSelectedListener = onKPointSelectedListener;
+	}
+	
+	/**
+	 * 统一获取商品编号
+	 */
+	private int getCommodityNumber(){
+		return ((MyApplication)context.getApplicationContext()).getCurrentTradeEntity().getPriceData().getPriceRuntimeData().getCurrentCommodityNumber();
+	}
+//    public void setZuId(int zuId) {
+//        this.zuId = zuId;
+//    }
+
+}

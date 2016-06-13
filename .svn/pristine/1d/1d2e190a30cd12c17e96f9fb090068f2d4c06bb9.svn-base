@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <FrameLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/common_devider" />
+
+    <RadioGroup
+        android:id="@+id/rg_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <RadioButton
+            android:id="@+id/rb_1"
+
+            style="@style/home_tab_rb"
+            android:checked="true"
+            android:drawableTop="@drawable/tab_radiobutton_home_selector"
+            android:text="@string/shouye" />
+
+        <RadioButton
+            android:id="@+id/rb_2"
+
+            style="@style/home_tab_rb"
+            android:drawableTop="@drawable/tab_radiobutton_shipan_selector"
+            android:text="@string/shipan" />
+
+        <RadioButton
+            android:id="@+id/rb_3"
+
+            style="@style/home_tab_rb"
+            android:drawableTop="@drawable/tab_radiobutton_moni_selector"
+            android:text="@string/monipan" />
+
+        <RadioButton
+            android:id="@+id/rb_4"
+
+            style="@style/home_tab_rb"
+            android:drawableTop="@drawable/tab_radiobutton_huodong_selector"
+            android:text="@string/huodong" />
+
+        <RadioButton
+            android:id="@+id/rb_5"
+
+            style="@style/home_tab_rb"
+            android:drawableTop="@drawable/tab_radiobutton_geren_selector"
+            android:text="@string/geren" />
+    </RadioGroup>
+</LinearLayout>  

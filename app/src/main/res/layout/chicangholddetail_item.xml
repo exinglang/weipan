@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/holddetail_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fab_margin"
+
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_marginLeft="30dp"
+                    android:layout_centerVertical="true"
+                    android:textSize="15dp"
+                    android:text="test前海油"/>
+                <TextView
+                    android:id="@+id/tv_time"
+                    android:layout_marginLeft="3dp"
+                    android:layout_centerVertical="true"
+
+                    android:layout_toRightOf="@id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2008.10.10"/>
+
+                <Button
+                    android:id="@+id/bt_drop"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/home_button_blue"
+                    android:text="平仓"/>
+
+            </RelativeLayout>
+
+            <include layout="@layout/chicangholddetail_item_two_line" />
+
+        </LinearLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+
+</LinearLayout>

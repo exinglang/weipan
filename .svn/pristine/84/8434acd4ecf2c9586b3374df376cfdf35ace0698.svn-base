@@ -1,0 +1,784 @@
+package com.puxtech.weipan.network;
+
+import android.content.Context;
+
+import com.puxtech.weipan.Constant;
+import com.puxtech.weipan.data.AdPictureResponseData;
+import com.puxtech.weipan.data.AlertUrlResponseData;
+import com.puxtech.weipan.data.AppKeyPropertyResponseData;
+import com.puxtech.weipan.data.BaseResponseDataOpenAccountContract;
+import com.puxtech.weipan.data.BankListResponseData;
+import com.puxtech.weipan.data.BranchBankListResponseData;
+import com.puxtech.weipan.data.CatalogResponseData;
+import com.puxtech.weipan.data.CityListResponseData;
+import com.puxtech.weipan.data.OpenAccountInfoResponseData;
+import com.puxtech.weipan.data.OpenAccountResponseData;
+import com.puxtech.weipan.data.ProvinceListResponseData;
+import com.puxtech.weipan.data.ThirdPartyLoginResponseData;
+import com.puxtech.weipan.data.TradeAccountListResponseData;
+import com.puxtech.weipan.data.TradeLogonResponseData;
+import com.puxtech.weipan.data.VirtualAccountResponseData;
+import com.puxtech.weipan.data.entitydata.OpenAccountInfoEntity;
+import com.puxtech.weipan.helper.BaseLinkHelper;
+import com.puxtech.weipan.helper.OtherHelper;
+import com.puxtech.weipan.helper.TradeHelper;
+import com.puxtech.weipan.helper.WeiPanFrontLinkHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Created by zuochenyong on 15/11/4.
+ */
+public class HttpManagerOpenAccountContract extends HttpManagerBase {
+    private static final String MEMBER_NO = "666";
+    private static final String MEMBER_NAME = "PUXTECH";
+//    private static final String RSA_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuye0Me3kyTmUnGXFJAgirc5d06lpwQPtAVuBLOiOCCnxZBzHS3V37mOx/01fu61bML7yaY2Zu3KDRIAFfNdGEXwx+Kgk9yKf8lH5Z+cgJKg1TEaI7M6MavuaBFogWOszwB4/UybWRUg568cNFqywVMyaf4ikyuYQrZMwpaFzmLBDRfz46BX1LFtkPtC3W4F2+esxihYl8aiSseI9/zgYX6Ce4kxticuXPvHecowEgorOUKyML0rBniXQJ7xuo51ncosTcVvAhVF98DZoEX43Kq9mdWjCKg1kGFVeRbeTF241lV9/o1DFucwDxBOYemBMmQSZTPfvAGGEpe7KwmNWZwIDAQAB";
+
+//    private static final int LINK_HELPER_TYPE_WEIPAN = 1;
+//    private static final int LINK_HELPER_TYPE_OPENACCOUNT = 2;
+
+    // private static final String EXCHANGE_CODE = "1";
+
+//    private static final String USER_ID = "13";
+//    private static final String JYS_CODE = "101";
+//    private static final String ENV_CODE = "101";
+//    private static final String TRADE_ACCT = "402000000000018";
+
+
+    public HttpManagerOpenAccountContract(Context context) {
+        super(context);
+
+    }
+
+    //请求APP属性,包含微盘前置地址.和开户服务器地址
+
+    public AppKeyPropertyResponseData requestAppKeyProperty() {
+        AppKeyPropertyResponseData responseData = new AppKeyPropertyResponseData();
+        String requestData;
+        try {
+            TokenBManager manager = new TokenBManager(context);
+            requestData = manager.createAppKeyPropertyRequestData();
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        byte[] responseStr;
+        try {
+            responseStr = httpSender.requestBinary(requestData.getBytes(), Constant.CATALOG_URL);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+
+        responseData.parse(context, responseStr);
+
+        return responseData;
+    }
+    //请求目录服务器
+
+    public CatalogResponseData requestCatalog() {
+        CatalogResponseData responseData = new CatalogResponseData();
+        String requestData;
+        try {
+            TokenBManager manager = new TokenBManager(context);
+            requestData = manager.createCatalogRequestData(context);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        byte[] responseStr;
+        try {
+            responseStr = httpSender.requestBinary(requestData.getBytes(), Constant.CATALOG_URL);
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+
+        responseData.parse(context, responseStr);
+
+        return responseData;
+    }
+
+    //签约-银行列表
+    public BankListResponseData requestBankList() {
+        BankListResponseData responseData = new BankListResponseData();
+        String requestData;
+        String rName = "get_bank_list";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("bank_id", "");
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    //签约-省份列表
+    public ProvinceListResponseData requestProvinceList(String provinceId) {
+        ProvinceListResponseData responseData = new ProvinceListResponseData();
+        String requestData;
+        String rName = "get_province_list";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("province_id", provinceId);
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    //签约-省份列表
+    public CityListResponseData requestCityList(String provinceId) {
+        CityListResponseData responseData = new CityListResponseData();
+        String requestData;
+        String rName = "get_city_list";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("province_id", provinceId);
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            ;
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    public BranchBankListResponseData requestBranchBankList(String cityId, String bankId) {
+        BranchBankListResponseData responseData = new BranchBankListResponseData();
+        String requestData;
+        String rName = "get_branch_list";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("bank_id", bankId);
+            map.put("city_id", cityId);
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    public BranchBankListResponseData requestBranchInfo(String branchId) {
+        BranchBankListResponseData responseData = new BranchBankListResponseData();
+        String requestData;
+        String rName = "get_branch_info";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("branch_id", branchId);
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    //开户发送验证码
+    public BaseResponseDataOpenAccountContract requestSendVerifyCode(String phoneNumber) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+        String rName = "send_val_code";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("phone", phoneNumber);
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+    }
+    //获取风险提示网址
+    public AlertUrlResponseData requestAlertUrl() {
+        AlertUrlResponseData responseData = new AlertUrlResponseData();
+        String requestData;
+        String rName = "get_protocols";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("exchange_code", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(myapp,responseStr);
+
+        return responseData;
+    }
+    //开户前检测验证码
+    public BaseResponseDataOpenAccountContract requestCheckVerifyCode(String phoneNumber, String code) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+        String rName = "check_val_code";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("phone", phoneNumber);
+            map.put("val_code", code);
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+    }
+    //签约发送验证码
+    public BaseResponseDataOpenAccountContract requestContractCode(String phoneNumber) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+        String rName = "shortcut_valcode";
+        OpenAccountInfoEntity oaEntity = myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity();
+
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("phone", phoneNumber);
+            map.put("customer_no", oaEntity.getCustomer_no());
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+    }
+    //开户
+    public OpenAccountResponseData requestOpenAccount(String phoneNumber, String id, String name) {
+        OpenAccountResponseData responseData = new OpenAccountResponseData();
+        String requestData;
+        String rName = "open_account_and_bind";
+        try {
+
+            HashMap<String, String> map = new HashMap<>();
+            map.put("member_no", MEMBER_NO);
+            map.put("member_name", MEMBER_NAME);
+            map.put("customer_name", name);
+
+            map.put("papers_type", "1");
+            map.put("papers_num", id);
+            map.put("phone", phoneNumber);
+            map.put("ip", "");
+
+
+            map.put("jys_code", new OtherHelper().getJysCode(context));
+            map.put("env_code", new OtherHelper().getShiPanEnvCode(context));
+            map.put("exchange_code", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+//            map.put("jys_code ", phoneNumber);
+//            map.put("env_code", phoneNumber);
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+
+    //模拟盘开户签约
+    public VirtualAccountResponseData requestVirtualAccount() {
+        VirtualAccountResponseData responseData = new VirtualAccountResponseData();
+        String requestData;
+        String rName = "generate_v_account";
+        try {
+
+            HashMap<String, String> map = new HashMap<>();
+            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+
+            map.put("tradeweb_url", myapp.getMoniTradeEntity().getTradeUrl());
+            map.put("rsa_public_key", myapp.getCurrentTradeEntity().getOtherData().getRSA());
+
+
+            map.put("exchange_code", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+//            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+            map.put("jys_code", new OtherHelper().getJysCode(context));
+            map.put("env_code", new OtherHelper().getMoNiPanEnvCode(context));
+//            map.put("member_no", MEMBER_NO);
+//            map.put("member_name", MEMBER_NAME);
+//            map.put("customer_name", name);
+//            map.put("papers_type", "1");
+//            map.put("papers_num", id);
+//            map.put("phone", phoneNumber);
+//            map.put("ip", "");
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(responseStr);
+
+        return responseData;
+    }
+    //获取开户信息
+    public OpenAccountInfoResponseData requestOpenAccountInfo(String customerNo) {
+        OpenAccountInfoResponseData responseData = new OpenAccountInfoResponseData();
+        String requestData;
+        String rName = "get_open_account_inf";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("customer_no", customerNo);
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+
+        responseData.parseXML(myapp, responseStr);
+
+        return responseData;
+    }
+
+
+    //绑定交易账号
+    public BaseResponseDataOpenAccountContract requestBindTrade(boolean isShiPan, String tradeId) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+        String rName = "bind_trade_account";
+        try {
+
+//            "exchange_code":"1",
+//                    "user_id":11,
+//                    "jys_code ":"101",
+//                    "env_code":"101",
+//                    "trade_acct":"168000000002300"
+
+            HashMap<String, String> map = new HashMap<>();
+            map.put("exchange_code", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+
+            if (isShiPan) {
+                map.put("jys_code", new OtherHelper().getJysCode(context));
+                map.put("env_code", new OtherHelper().getShiPanEnvCode(context));
+            } else {
+                map.put("jys_code", new OtherHelper().getJysCode(context));
+                map.put("env_code", new OtherHelper().getMoNiPanEnvCode(context));
+            }
+            map.put("trade_acct", tradeId);
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+    }
+
+    //模拟盘签约
+    public BaseResponseDataOpenAccountContract requestSignVirtualBank(String customer_no) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+        String rName = "sign_virtual_bank";
+        try {
+
+//            "exchange_code":"1",
+//                    "user_id":11,
+//                    "jys_code ":"101",
+//                    "env_code":"101",
+//                    "trade_acct":"168000000002300"
+
+            HashMap<String, String> map = new HashMap<>();
+            map.put("customer_no", customer_no);
+            //  map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+
+
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+    }
+
+    //请求签约
+    public BaseResponseDataOpenAccountContract requestContract(String bankNumber, String bankName, String provinceId, String branchId,String verifyCode) {
+        BaseResponseDataOpenAccountContract responseData = new BaseResponseDataOpenAccountContract();
+        String requestData;
+
+        String rName = "signing";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            OpenAccountInfoEntity oaEntity = myapp.getOpenAccountContractEntity().getOpenAccountInfoEntity();
+            map.put("member_no", MEMBER_NO);
+            map.put("member_name", MEMBER_NAME);
+
+//            2：签约或改约；
+//            3：签约并开通快捷支付
+
+            map.put("sign_type", new TradeHelper(context).hasContract()?"2":"3");
+
+
+            map.put("customer_no", oaEntity.getCustomer_no());
+            map.put("customer_name", oaEntity.getCustomer_name());
+            map.put("papers_type", "1");
+            map.put("papers_num", oaEntity.getId_no());
+            map.put("phone", oaEntity.getPhone());
+            map.put("bank_account", bankNumber);
+            map.put("bank_name", bankName);
+            map.put("bank_province", provinceId);
+            map.put("bank_id", "900");
+            map.put("ip", "");
+            map.put("branch_id", branchId);
+            map.put("valcode", verifyCode);
+
+
+//            verifyCode
+//            return getRequestData(map, rName);
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        return  publicCheckFail(requestData,responseData);
+
+
+//        return responseData;
+    }
+
+
+
+    public ThirdPartyLoginResponseData thirdPartyLoginRequest(String unionId) {
+        ThirdPartyLoginResponseData responseData = new ThirdPartyLoginResponseData();
+        String requestData;
+        String rName = "third_party_login";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("open_id", unionId);
+            map.put("exchange", "1");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(myapp, responseStr);
+
+        return responseData;
+    }
+
+
+//获取轮播图片
+    public AdPictureResponseData getAdPicture() {
+        AdPictureResponseData responseData = new AdPictureResponseData();
+        String requestData;
+        String rName = "get_loop_pictures";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+//            map.put("open_id", unionId);
+//            map.put("exchange", "1");
+            map.put("exchange_code", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(myapp, responseStr);
+
+        return responseData;
+    }
+
+    public TradeAccountListResponseData tradeAccountListRequest() {
+        TradeAccountListResponseData responseData = new TradeAccountListResponseData();
+        String requestData;
+        String rName = "get_trade_account_list";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+            map.put("exchange", myapp.getContentsServerEntity().getYwSystemEntity().getCode() + "");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        HttpSender httpSender = new HttpSender();
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        // responseStr="{\"puxt\":{\"rep_header\":{\"rep_code\":0,\"rep_msg\":\"成功\"},\"rep_body\":{\"trade_account_list\":[{\"jys_code\":\"101\",\"env_code\":\"101\",\"trade_account\":\"402000000000018\"}]}}}";
+        responseData.parseXML(myapp, responseStr);
+
+        return responseData;
+    }
+
+    /**
+     * 免密登陆 交易前置
+     *
+     * @return
+     */
+    public TradeLogonResponseData tradeLogonRequest() {
+        TradeLogonResponseData responseData = new TradeLogonResponseData();
+        String requestData;
+        String rName = "trade_logon_ex";
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("user_id", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getWeiPanId());
+            map.put("member_no", MEMBER_NO);
+            map.put("customer_no", myapp.getCurrentTradeEntity().getUserId());
+            map.put("url", myapp.getCurrentTradeEntity().getTradeUrl() + "?req=logonex");
+            map.put("rsa_public_key", myapp.getCurrentTradeEntity().getOtherData().getRSA());
+            map.put("ip", "");
+            requestData = getRequestData(map, rName);
+            outPutRequestLog(requestData);
+        } catch (Exception e) {
+            createError(responseData, e);
+            return responseData;
+        }
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        responseData.parseXML(myapp, responseStr);
+        return responseData;
+    }
+
+    // 将map中的值,组成json
+    protected String getRequestData(HashMap<String, String> map, String rName) {
+        JSONObject json = new JSONObject();
+        String req = null;
+        try {
+            Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> m = it.next();
+                String key = m.getKey();
+                String value = m.getValue();
+                json.put(key, value);
+            }
+            req = jsonRequestPutHead(json, rName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return req;
+
+    }
+
+    /**
+     * 有的协议只需要判断成功或失败.没有其他信息
+     */
+    private BaseResponseDataOpenAccountContract publicCheckFail(String requestData, BaseResponseDataOpenAccountContract responseData) {
+        String responseStr;
+        try {
+            responseStr = requestBinaryAndChangeAvailableLink(requestData.getBytes());
+        } catch (Exception e) {
+            networkError(responseData, e);
+            return responseData;
+        }
+        try {
+            responseData.checkFail(responseStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseData.parseError();
+
+        }
+        return responseData;
+    }
+
+    // 给一些复用的KEY赋值
+    protected String jsonRequestPutHead(JSONObject body, String name)
+            throws JSONException {
+        // TODO Auto-generated method stub
+
+//        String mTakenB = "";
+//        String mTakenB = "<TKNB><APPK>95efd63e-79aa-4c6a-8323-f080cd505242</APPK><DEVID>979d6c09-d6a0-41d8-ae72-75fa7002abea</DEVID><DATE>2015-12-25 12:02:05</DATE><SALT>CI/RUA==</SALT><SIGN>dRNlGSEWKV3x/bFA7aYS0QoDQ9NPNj1tgSkKEfRo2fi3LynhtJ6w/RK3U9BOexrc4yQuDQrUEtp8weBFXFrqKA==</SIGN></TKNB>";
+
+        if (name.equals("third_party_login")) {
+            TokenBManager tokenBManager = new TokenBManager(context);
+            String mTakenB = tokenBManager.getTokenB();
+            body.put("token_b", mTakenB);
+        } else {
+            body.put("token_b", myapp.getOpenAccountContractEntity().getThirdPartyLoginEntity().getToken_b());
+        }
+
+        JSONObject head = new JSONObject();
+        head.put("version", "1.0");
+        head.put("protocol_name", name);
+        JSONObject rep = new JSONObject();
+        rep.put("req_header", head);
+        rep.put("req_body", body);
+        JSONObject mmts = new JSONObject();
+        mmts.put("puxt", rep);
+
+//        TradeLogRecorder tlr = new TradeLogRecorder();
+//        tlr.saveLog(myapp, "请求:"+json.toString());
+        return mmts.toString();
+    }
+
+
+    public String requestBinaryAndChangeAvailableLink(byte[] requestData) throws Exception {
+
+            return requestBinaryAvailableLink(requestData, WeiPanFrontLinkHelper.getInstance(context));
+
+
+    }
+
+    public String requestBinaryAvailableLink(byte[] requestData, BaseLinkHelper linkHelper) throws Exception {
+        String retData;
+        HttpSender httpSender = new HttpSender();
+        try {
+            retData = httpSender.requestJson(requestData, linkHelper.getCurrentUrl());
+        } catch (Exception e) {
+            // 失败后切换链路递归请求
+            Logger.e("priceLogonRequest()...请求失败，开始切换链路");
+            String availableUrl = linkHelper.switchLink();
+            if (availableUrl != null) {
+                return requestBinaryAvailableLink(requestData, linkHelper);
+            } else {
+                throw new Exception();
+            }
+        }
+        // linkHelper.clearFailedLink();//可能没用,先去掉
+        return retData;
+    }
+
+}

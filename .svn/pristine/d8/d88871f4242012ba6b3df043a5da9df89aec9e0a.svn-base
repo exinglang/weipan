@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="gridview" type="id" />
+    <item name="webview" type="id" />
+    <item name="scrollview" type="id" />
+    <item name="parallax_view_tag" type="id" />
+    <item name="parallax_pager" type="id" />
+    <item name="brand_add_id" type="id" />
+    <item name="toolbar" type="id" />
+    <item name="iv_1" type="id" />
+    <item name="iv_2" type="id" />
+    <item name="iv_3" type="id" />
+    <item name="iv_4" type="id" />
+    <item name="tv_no" type="id" />
+
+
+</resources>

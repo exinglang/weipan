@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/price_detail_line_bg"
+    android:orientation="vertical"
+    android:padding="1dip" >
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:gravity="center"
+            android:text="时" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="价" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:id="@+id/liang"
+
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:text="量" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:id="@+id/liang_value_1"
+            android:layout_alignParentRight="true"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_2"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_3"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_4"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:text="-"
+            android:id="@+id/liang_value_5"
+            />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_6"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_7"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_8"
+            android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_9"
+            android:text="-" />
+    </LinearLayout>
+    <LinearLayout style="@style/pricedetail_pager_timeline_wudang_ll" >
+
+        <TextView
+            android:id="@+id/tv_s5"
+            style="@style/pricedetail_pager_timeline_wudang_ll_child1_style"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child2_style"
+            android:layout_toRightOf="@id/tv_s5"
+            android:text="-" />
+
+        <TextView
+            style="@style/pricedetail_pager_timeline_wudang_ll_child3_style"
+            android:layout_alignParentRight="true"
+            android:id="@+id/liang_value_10"
+            android:text="-" />
+    </LinearLayout>
+
+</LinearLayout>

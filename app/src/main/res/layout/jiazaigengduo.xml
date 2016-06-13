@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+
+    android:padding="@dimen/common_padding">
+
+    <Button
+        android:id="@+id/bt_more"
+    android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="40dip"
+
+        android:text="加载更多"
+        android:textSize="16dp" />
+
+</RelativeLayout>

@@ -1,0 +1,1193 @@
+package com.puxtech.weipan.view;
+
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Path;
+import android.graphics.PathEffect;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.os.AsyncTask;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
+import com.puxtech.weipan.MyApplication;
+import com.puxtech.weipan.R;
+import com.puxtech.weipan.data.entitydata.KLineEntity;
+import com.puxtech.weipan.data.entitydata.KPointEntity;
+import com.puxtech.weipan.network.Logger;
+import com.puxtech.weipan.util.ActivityUtils;
+import com.puxtech.weipan.util.KLineUtils;
+import com.puxtech.weipan.util.PriceUtil;
+import com.puxtech.weipan.util.ScreenSizeUtil;
+import com.puxtech.weipan.widget.CustomViewPager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <b>Description:</b>
+ * <p>
+ * 竖屏K线view
+ * </p>
+ *
+ * @Company 北京乐赢索思软件科技有限责任公司
+ * @author fanshuo
+ * @date 2014-1-2 下午3:37:10
+ * @version V1.0
+ * @FileName KLinePortrait.java
+ * @Package com.happyinsource.htjy.android.view
+ */
+@SuppressWarnings("ALL")
+public class KLinePortrait extends SurfaceView implements
+		SurfaceHolder.Callback, KLineCrossLineView.OnKPointSelected {
+
+	public void setHasLoadedAllPointList(boolean hasLoadedAllPointList) {
+		this.hasLoadedAllPointList = hasLoadedAllPointList;
+	}
+
+	public boolean isHasLoadedAllPointList() {
+		return hasLoadedAllPointList;
+	}
+
+	public int getkPointCount() {
+		return kPointCount;
+	}
+
+
+
+	private static final int Y_COUNT = 4;// 竖向小格总数
+	private float K_POINT_WIDTH_DP = 5;// 柱子宽度，单位是dp
+
+	private SurfaceHolder holder;
+	private Context context;
+	private Paint linePaint;// 边框
+	private Paint linePaintDashed;// 边框虚线
+	private Paint kPaintRed;// 红色柱子
+	private Paint kPaintGreen;// 绿色柱子
+	private Paint greenTextPaint;// 临时使用的字体
+	private Paint whiteTextPaint;// 白色文字
+	private Paint pma5Paint;// pma5线
+	private Paint zdygs_quato_paint;
+	private Paint pma10Paint;// pma10线
+	private Paint pma20Paint;// pma20线
+	private Paint pma30Paint;// pma30线
+
+
+	KLineUtils ku;
+	private Paint pma5TextPaint;// pma5文字
+	private Paint pma10TextPaint;// pma10文字
+	private Paint pma20TextPaint;// pma20文字
+	private Paint pma30TextPaint;// pma30文字
+
+
+	private float frameStartX, frameStartY, frameEndX, frameEndY;// k线框架起点和终点
+
+	//private float middleTextAreaHeight;//中间文字顶部的分割线
+
+	private float ySpacing;// 一个横条格子的像素数
+	private double priceSpacing;// 最左边的价钱间隔，根据涨或跌的最大的那个确定间隔价钱数
+	private float marginLeftPortrait, horizonTextHeight;// marginHorizonTextPortrait:顶部中间底部水平文字区域的高度
+	private int textSize;// 字体大小
+	private int kPointWidth;// k线一个柱子的宽度,不包括右边的1像素空隙，单位是像素
+	private int kPointCount;// 柱子的总数量
+	private double highestPrice;
+	private double lowestPrice;
+
+	private List<KPointEntity> allPointList;// 所有柱子
+	private List<KPointEntity> curPointList;// 当前显示的柱子
+	private int offset = 0;// 因为滑动引起的偏移量，单位：柱子
+	private MyApplication mApplication;
+//	private BOTTOM_TYPE curType = BOTTOM_TYPE.MACD;// 当前底部指标类型
+
+	private KLineCrossLineView view_cross_line;// 十字线，用于给该view添加curPointList的引用
+
+	private CustomViewPager viewPager;// viewpager，是外面viewpager的引用，用来控制viewpager是否可以滑动
+
+	public interface KLineViewCallBack {
+		/**
+		 * 显示kLineView的进度圈
+		 */
+		public void showProgressBar();
+
+		/**
+		 * 隐藏kLineView的进度圈
+		 */
+		public void hideProgressBar();
+	}
+
+	private KLineViewCallBack kLineViewCallBack;
+
+	private boolean hasLoadedAllPointList = false;// 是否获取过所有的，如果获取之前判定为不用获取，需要把这个设置为true
+
+	public KLinePortrait(Context context) {
+		super(context);
+		init(context);
+	}
+
+	public KLinePortrait(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
+
+	public KLinePortrait(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init(context);
+	}
+
+	private void init(Context context) {
+		this.context = context;
+		holder = getHolder();
+		holder.addCallback(this);
+		holder.setFormat(PixelFormat.TRANSPARENT);
+		setBackgroundColor(Color.argb(255, 255, 255, 255));
+		setZOrderOnTop(true);
+		kPointWidth = ScreenSizeUtil.Dp2Px(context, K_POINT_WIDTH_DP);// 暂时设为5dp
+		initPaint();
+		this.curPointList = new ArrayList<KPointEntity>();
+		this.allPointList = new ArrayList<KPointEntity>();
+		ku=new KLineUtils();
+//		refreshKLine(null);
+		mApplication = (MyApplication) context.getApplicationContext();
+	}
+
+
+
+	/**
+	 * 设置顶点和四周边距
+	 */
+	private void setEndPoint() {
+		//pma和macd文字区域的高度
+		horizonTextHeight = ScreenSizeUtil.Dp2Px(context, 17);
+		//macd上面分割线的高度
+//		middleTextAreaHeight = ScreenSizeUtil.Dp2Px(context, 4);
+		marginLeftPortrait = ScreenSizeUtil.Dp2Px(context, 40);
+		// 设置字体大小为10dp
+		setTextSize(ScreenSizeUtil.Dp2Px(context, 10));
+		// 竖向间隔,Y_COUNT+1是算上了下面的其它线的一个格子
+//		this.ySpacing = (getHeight() - ( horizonTextHeight + middleTextAreaHeight)) / (Y_COUNT+1 );
+		this.ySpacing = (getHeight() -  horizonTextHeight-20) / (Y_COUNT+1 );
+		// 起点，整个view的左上角
+		this.frameStartX = 0f;
+		this.frameStartY = 0f + horizonTextHeight;
+		Log.i("doitY",frameStartY+".");
+		// 终点，右下角减去其它线所占空间
+		this.frameEndX = getWidth();
+		this.frameEndY = this.ySpacing * (Y_COUNT) + this.frameStartY;
+
+		//this.frameEndY =this.ySpacing + horizonTextHeight + middleTextAreaHeight;
+//		this.bottomFrameStartX = 0f;
+//		this.bottomFrameStartY = this.frameEndY + horizonTextHeight + middleTextAreaHeight;
+//		this.bottomFrameEndX = getWidth();
+//		this.bottomFrameEndY = this.ySpacing + this.bottomFrameStartY;
+
+	}
+
+	private void setTextSize(int size) {
+		this.textSize = size;
+		this.greenTextPaint.setTextSize(size);
+		this.whiteTextPaint.setTextSize(size);
+
+		this.pma5TextPaint.setTextSize(size);// pma5文字
+		this.pma10TextPaint.setTextSize(size);// pma10文字
+		this.pma20TextPaint.setTextSize(size);// pma20文字
+		this.pma30TextPaint.setTextSize(size);// pma30文字
+
+	}
+
+	/**
+	 * 画上面的K线的框架
+	 *
+	 * @param canvas
+	 */
+	private void drawFrame(Canvas canvas) {
+		Log.i("doithh","drawFrame");
+
+		float curY = frameStartY;// 画横线时，当前这条线的y坐标
+		float curX = getMarginLeft();// 画竖线时，当前这条线的x坐标
+		// 画横线
+		for (int i = 0; i < (Y_COUNT + 1); i++) {
+			if (i == 0 || i == Y_COUNT) {
+				//横向第一条和最后一条直线
+				canvas.drawLine(frameStartX, curY, frameEndX, curY, linePaint);
+			} else {
+				//中间的N条虚线
+				canvas.drawLine(frameStartX, curY, frameEndX, curY,
+						linePaintDashed);
+			}
+			curY = curY + ySpacing;
+		}
+		// 画竖线，只画一根
+		canvas.drawLine(curX, frameStartY, curX, frameEndY, linePaint);
+	}
+
+//	/**
+//	 * 画底部其它线的框架
+//	 *
+//	 * @param canvas
+//	 */
+//	private void drawBottomeFrame(Canvas canvas) {
+//		float curY = this.bottomFrameStartY;// 画横线时，当前这条线的y坐标
+//		float curX = getMarginLeft();// 画竖线时，当前这条线的x坐标
+//		// 画横线
+//		for (int i = 0; i < 2; i++) {
+//			canvas.drawLine(this.bottomFrameStartX, curY, this.bottomFrameEndX,
+//					curY, this.linePaint);
+//			curY = curY + this.ySpacing;
+//		}
+//		// 画竖线
+//		canvas.drawLine(curX, this.bottomFrameStartY, curX,
+//				this.bottomFrameEndY, this.linePaint);
+//	}
+
+	/**
+	 * k线图上面的MA数字
+	 *
+	 * @param canvas
+	 */
+	private void drawTopText(Canvas canvas, KPointEntity kPoint) {
+		// 画背景
+		Paint darkBgPaint = new Paint();
+		darkBgPaint.setColor(getResources().getColor(
+				R.color.white));
+		canvas.drawRect(new Rect((int) frameStartX, 0, (int) frameEndX,
+				(int) frameStartY), darkBgPaint);
+		float startX = this.frameStartX + 10;
+		float pixelY = this.frameStartY - ((horizonTextHeight - textSize) / 2);
+		canvas.drawText(
+				"5MA:"
+						+ PriceUtil.formatPrice(context, kPoint.getPma5(),
+						getCommodityNumber()), startX, pixelY,
+				this.pma5TextPaint);
+		canvas.drawText(
+				"10MA:"
+						+ PriceUtil.formatPrice(context, kPoint.getPma10(),
+						getCommodityNumber()), startX + this.textSize
+						* 8, pixelY, this.pma10TextPaint);
+		canvas.drawText(
+				"20MA:"
+						+ PriceUtil.formatPrice(context, kPoint.getPma20(),
+						getCommodityNumber()), startX + this.textSize
+						* 8 * 2, pixelY, this.pma20TextPaint);
+		canvas.drawText(
+				"30MA:"
+						+ PriceUtil.formatPrice(context, kPoint.getPma30(),
+						getCommodityNumber()), startX + this.textSize
+						* 8 * 3, pixelY, this.pma30TextPaint);
+
+	}
+
+	/**
+	 * 其它线上面的数字
+	 *
+	 * @param canvas
+	 */
+	private void drawMidleText(Canvas canvas, KPointEntity kPoint,int raw_size) {
+		// 画分割线
+		Paint linePaint = new Paint();
+		linePaint.setColor(getResources().getColor(
+				R.color.price_detail_line_bg_divider));
+		//canvas.drawRect(new Rect((int)bottomFrameStartX, (int)frameEndY, (int)bottomFrameEndX, (int)(frameEndY + middleTextAreaHeight)), linePaint);
+		// 画背景
+//		Paint darkBgPaint = new Paint();
+//		darkBgPaint.setColor(getResources().getColor(
+//				R.color.price_detail_line_bg_dark));
+//		canvas.drawRect(new Rect((int)bottomFrameStartX, (int)(frameEndY + middleTextAreaHeight), (int)bottomFrameEndX, (int)bottomFrameStartY), darkBgPaint);
+//
+//		int index=this.curPointList.indexOf(kPoint);
+//		if(index==-1)return;
+//
+//		float startX = this.bottomFrameStartX + 10;
+//		float pixelY = this.bottomFrameStartY- ((horizonTextHeight - textSize) / 2);
+//		int i=0;
+		//下面代码指标相关
+		//Paint paint=Generate_ZDYGS_Paint();
+//		if(values!=null){
+//			double value;
+//			double data[];
+//			int start=0;
+//			if(raw_size>kPointCount)
+//			start=(raw_size - kPointCount) - offset;
+
+//			for(ExpressionValue ev:values){
+//				if(!ev.isNeedDraw())continue;
+//				if(!(ev.getData() instanceof double[])){
+//					continue;
+//				}
+//				data=(double[]) ev.getData();
+//
+//				value=data[start+index];
+//				paint.setColor(getColor(entity, ev));
+//				if(ku.isDoubleValid(value))
+//				canvas.drawText(ev.getParamName()+":"+PriceUtil.keepPrecision(value, 2) ,startX+this.textSize * 8*i, pixelY,paint);
+//				i++;
+//			}
+//		}
+	}
+
+//	private Paint Generate_ZDYGS_Paint(){
+//		Paint zdy_gs = new Paint();
+//		zdy_gs.setAntiAlias(true);
+//		zdy_gs.setTextSize(20);
+//		return zdy_gs;
+//	}
+
+
+	/**
+	 * 初始化curPositionList  List<ExpressionValue> values
+	 */
+	private void initCurPositionList(int raw_size) {
+		this.kPointCount = (int) ((getWidth() - getMarginLeft()) / (kPointWidth + 1));// +1是因为左右两边的1像素间隔
+		this.curPointList.clear();
+		// 从整个list中取出要显示的个数，从末尾开始取
+		int start,end;
+		if (allPointList.size() > kPointCount) {
+			start=(allPointList.size() - kPointCount) - offset;
+			end=allPointList.size() - offset;
+			// 如果柱子总数超过一屏
+			for (int i = start; i < end; i++) {
+				this.curPointList.add(allPointList.get(i));
+			}
+		} else {
+			// 如果总柱子数不满一屏
+			for (int i = 0; i < allPointList.size(); i++) {
+				this.curPointList.add(allPointList.get(i));
+			}
+		}
+	}
+
+	/**
+	 * 画左边的价格，并且确定价格的最大值和最小值，必须优先执行此方法，因为影响到后面画线的单位大小
+	 */
+	public void drawLeftPriceText(Canvas canvas) {
+		// 从取出的list中找出最高价和最低价
+		this.highestPrice = 0;// 要显示的所有柱子中的最高价
+		this.lowestPrice = this.curPointList.get(0).getLowestPrice();// 要显示的所有柱子中的最低价
+		for (KPointEntity item : this.curPointList) {
+			if (item.getHighestPrice() > highestPrice) {
+				highestPrice = item.getHighestPrice();
+			}
+			if (item.getLowestPrice() < lowestPrice) {
+				lowestPrice = item.getLowestPrice();
+			}
+			if (item.getPma5() > highestPrice) {
+				highestPrice = item.getPma5();
+			}
+			if (item.getPma10() > highestPrice) {
+				highestPrice = item.getPma10();
+			}
+			if (item.getPma20() > highestPrice) {
+				highestPrice = item.getPma20();
+			}
+			if (item.getPma30() > highestPrice) {
+				highestPrice = item.getPma30();
+			}
+			if (item.getPma5() > 0 && item.getPma5() < lowestPrice) {
+				lowestPrice = item.getPma5();
+			}
+			if (item.getPma10() > 0 && item.getPma10() < lowestPrice) {
+				lowestPrice = item.getPma10();
+			}
+			if (item.getPma20() > 0 && item.getPma20() < lowestPrice) {
+				lowestPrice = item.getPma20();
+			}
+			if (item.getPma30() > 0 && item.getPma30() < lowestPrice) {
+				lowestPrice = item.getPma30();
+			}
+		}
+		// 这里排除最高最低一样的情况，避免最后得到无穷大的数
+		if ((highestPrice - lowestPrice) == 0) {
+			highestPrice += 1f;
+			lowestPrice -= 1f;
+		}
+		// TODO 具体增量需要研究，如果波动只有0.x，3就太大了，导致所有柱子都在中间
+		// this.highestPrice = this.highestPrice + 3;
+		// this.lowestPrice = this.lowestPrice - 3;
+		// 算出一个小格子是多少价钱
+		this.priceSpacing = (highestPrice - lowestPrice) / Y_COUNT;
+		whiteTextPaint.setTextAlign(Align.RIGHT);
+		for (int i = 0; i < Y_COUNT + 1; i++) {
+			if (i == 0) {
+				// 第一个
+				canvas.drawText(PriceUtil.formatPrice(context, highestPrice,
+								getCommodityNumber()), this.marginLeftPortrait - 4,
+						this.frameStartY + this.textSize, whiteTextPaint);
+			} else if (i == Y_COUNT) {
+				// 最后一个
+				canvas.drawText(PriceUtil.formatPrice(context, lowestPrice,
+								getCommodityNumber()), this.marginLeftPortrait - 4,
+						this.frameEndY - 4, whiteTextPaint);
+			} else {
+				// 中间的
+				canvas.drawText(
+						PriceUtil.formatPrice(context, highestPrice
+								- this.priceSpacing * i, getCommodityNumber()),
+						this.marginLeftPortrait - 4,
+						(float) (this.frameStartY + this.ySpacing * i) - 4,
+						whiteTextPaint);
+			}
+		}
+	}
+
+//	/**
+//	 * 画最下面的时间
+//	 */
+//	private void drawBottomText(Canvas canvas, int raw_size) {
+//		if (raw_size <= this.kPointCount) {
+//			return;
+//		}
+//		float startY = this.bottomFrameEndY + this.textSize + 4;
+//		KPointEntity firstPoint = curPointList.get(0);
+//		KPointEntity lastPoint = curPointList.get(curPointList.size() - 1);
+//		whiteTextPaint.setTextAlign(Align.LEFT);
+//		// 第一个左对齐
+////		canvas.drawText(
+////				TimeUtil.convertStangeTimeToString(firstPoint.getTime()),
+//		canvas.drawText(
+//		ActivityUtils.getRealData(firstPoint.getTime()+""),
+//				marginLeftPortrait, startY, whiteTextPaint);
+//		whiteTextPaint.setTextAlign(Align.RIGHT);
+//		// 最后一个，右对齐
+//		canvas.drawText(ActivityUtils.getRealData(lastPoint.getTime()),	frameEndX, startY, whiteTextPaint);
+//	}
+
+	private void drawAllCurrentKPpoint(Canvas canvas) {
+		for (int i = 0; i < this.curPointList.size(); i++) {
+			drawKPoint(canvas, this.curPointList.get(i), i);
+		}
+	}
+
+	private void drawKPoint(Canvas canvas, KPointEntity entity, int position) {
+		float marginLeft = marginLeftPortrait;
+		float kPointWidthFixed = this.kPointWidth + 1;// 每个柱子的宽度，加1表示柱子右边的间隙
+		float pointX = kPointWidthFixed * position + kPointWidthFixed / 2
+				+ marginLeft;// 整个poiont的x坐标是固定的
+		float pixelsInPrice = (float) (this.ySpacing / this.priceSpacing);// 1块钱占的像素数
+		float lineStartY = (float) ((this.highestPrice - entity
+				.getHighestPrice()) * pixelsInPrice) + this.frameStartY;
+		float lineEndY = (float) ((this.highestPrice - entity.getLowestPrice()) * pixelsInPrice)
+				+ this.frameStartY;
+		if (entity.getClosePrice() > entity.getOpenPrice()) {
+			// 如果收盘价高于开盘价，上涨，红色柱子
+			canvas.drawLine(pointX, lineStartY, pointX, lineEndY, kPaintRed);
+			float left = pointX - this.kPointWidth / 2;
+			float right = pointX + this.kPointWidth / 2;
+			float top = (float) ((this.highestPrice - entity.getClosePrice()) * pixelsInPrice)
+					+ this.frameStartY;
+			float bottom = (float) ((this.highestPrice - entity.getOpenPrice()) * pixelsInPrice)
+					+ this.frameStartY;
+			canvas.drawRect(left, top, right, bottom, kPaintRed);
+
+			// 记录柱子的一些坐标，供十字线使用
+			entity.setCenterX(pointX);
+			entity.setCloseY(top);
+		} else if (entity.getClosePrice() < entity.getOpenPrice()) {
+			// 如果收盘价低于开盘价，下跌，绿色柱子
+			canvas.drawLine(pointX, lineStartY, pointX, lineEndY, kPaintGreen);
+			float left = pointX - this.kPointWidth / 2;
+			float right = pointX + this.kPointWidth / 2;
+			float top = (float) ((this.highestPrice - entity.getOpenPrice()) * pixelsInPrice)
+					+ this.frameStartY;
+			float bottom = (float) ((this.highestPrice - entity.getClosePrice()) * pixelsInPrice)
+					+ this.frameStartY;
+			canvas.drawRect(left, top, right, bottom, kPaintGreen);
+
+			// 记录柱子的一些坐标，供十字线使用
+			entity.setCenterX(pointX);
+			entity.setCloseY(bottom);
+		} else {
+			// 如果收盘价等于开盘价，红色横线
+			float left = pointX - this.kPointWidth / 2;
+			float right = pointX + this.kPointWidth / 2;
+			float top = (float) ((this.highestPrice - entity.getOpenPrice()) * pixelsInPrice)
+					+ this.frameStartY;
+			canvas.drawLine(pointX, lineStartY, pointX, lineEndY, kPaintRed);
+			canvas.drawLine(left, top, right, top, kPaintRed);
+
+			// 记录柱子的一些坐标，供十字线使用
+			entity.setCenterX(pointX);
+			entity.setCloseY(top);
+		}
+	}
+
+	public void drawPMA(Canvas canvas) {
+		float kPointWidthFixed = this.kPointWidth + 1;// 每个柱子的宽度，加2表示柱子左右的间隙
+		Path path5 = new Path();
+		Path path10 = new Path();
+		Path path20 = new Path();
+		Path path30 = new Path();
+		float pixelsInPrice = (float) (this.ySpacing / this.priceSpacing);// 1块钱占的像素数
+		for (int i = curPointList.size() - 1; i >= 0; i--) {
+			KPointEntity item = curPointList.get(i);
+			float pointX = kPointWidthFixed * i + kPointWidthFixed / 2
+					+ getMarginLeft();// 整个poiont的x坐标是固定的
+			float pointY5 = (float) ((this.highestPrice - item.getPma5()) * pixelsInPrice)
+					+ this.frameStartY;
+			float pointY10 = (float) ((this.highestPrice - item.getPma10()) * pixelsInPrice)
+					+ this.frameStartY;
+			float pointY20 = (float) ((this.highestPrice - item.getPma20()) * pixelsInPrice)
+					+ this.frameStartY;
+			float pointY30 = (float) ((this.highestPrice - item.getPma30()) * pixelsInPrice)
+					+ this.frameStartY;
+			if (i == curPointList.size() - 1) {
+				path5.moveTo(pointX, pointY5);
+				path10.moveTo(pointX, pointY10);
+				path20.moveTo(pointX, pointY20);
+				path30.moveTo(pointX, pointY30);
+			} else {
+				if (item.getPma5() > 0) {
+					path5.lineTo(pointX, pointY5);
+				}
+				if (item.getPma10() > 0) {
+					path10.lineTo(pointX, pointY10);
+				}
+				if (item.getPma20() > 0) {
+					path20.lineTo(pointX, pointY20);
+				}
+				if (item.getPma30() > 0) {
+					path30.lineTo(pointX, pointY30);
+				}
+			}
+		}
+		canvas.drawPath(path5, pma5Paint);
+		canvas.drawPath(path10, pma10Paint);
+		canvas.drawPath(path20, pma20Paint);
+		canvas.drawPath(path30, pma30Paint);
+	}
+
+//    private List<ExpressionValue> values;
+//    HTExpressionEntity entity;
+//	public  void setBottomData(List<ExpressionValue> values, HTExpressionEntity entity){
+//		this.values=values;
+//		this.entity=entity;
+//	}
+//	public List<ExpressionValue> getValues() {
+//		return values;
+//	}
+//
+//	private void drawBottomQuato(List<ExpressionValue> values,Canvas canvas, HTExpressionEntity entity,int raw_size) {
+//		if(values==null||values.size()==0)return ;
+//
+//		int start=0,end;
+//		if(raw_size>kPointCount)
+//		start=(raw_size - kPointCount) - offset;
+//		end=raw_size - offset;
+//		PriceLogger.zdy(" KLinePortrait drawBottomQuato ()allPointList size:"+raw_size+"offset:"+offset);
+//		PriceLogger.zdy("start:"+start);
+//		PriceLogger.zdy("end:"+end);
+//		if(!HTExpressionCalculator.right(values)){
+//			return;
+//		}
+//		// 画中间那条线
+//		double max=0,min=0;
+//		double [] mm=ku.getMaxMin(values,start,end);
+//		min=mm[0];max=mm[1];//0 min 1 max
+//
+//		Range range=entity.getRange();
+//
+//		int axisType=range.getRangeType();//坐标轴类型，0：单值域-最高最低完全展开；1：对称值域-中轴线固定上下对等展开
+//
+////		int yZuoBiaoTextType=entity.getyZuoBiaoTextType();//指标纵坐标值域类型。1：数字；2：百分比。
+//
+//		double bottomPriceSpacing=0;
+//		String hightText="",lowText="",middleText="";
+//		if(axisType==1){
+//			if(range.fixMaxMin()){
+//				hightText= String.valueOf(range.getMax());
+//				lowText= String.valueOf(range.getMin());
+//				middleText= String.valueOf(range.getMid());
+//				bottomPriceSpacing=range.getMax()-range.getMin();
+//			}else{
+//				bottomPriceSpacing=max-min;
+//				hightText=PriceUtil.keepPrecision(max, 2);
+//				lowText=PriceUtil.keepPrecision(min, 2);
+//			}
+//
+////			if(yZuoBiaoTextType==2){
+////				hightText="100%";
+////				lowText="-100%";
+////				middleText="0%";
+////			}else if(yZuoBiaoTextType==1){
+////				hightText=PriceUtil.keepPrecision(max, 2);
+////				lowText=PriceUtil.keepPrecision(-max, 2);
+////				middleText="0";
+////			}
+//		}else if(axisType==0){
+//			bottomPriceSpacing=max-min;
+//			hightText=PriceUtil.keepPrecision(max, 2);
+//			lowText=PriceUtil.keepPrecision(min, 2);
+//		}
+//		float pixelsInSpaceing=(float) (this.ySpacing/bottomPriceSpacing);
+//		if(axisType==1){//axisType==1必须要有中间值
+//			double centerV=-1;
+//			if(range.fixMaxMin()){
+//				centerV=range.getMax()-range.getMid();
+//			}else{
+//				centerV=max-range.getMid();
+//			}
+//			float centerY=(float) (bottomFrameStartY+centerV* pixelsInSpaceing);
+//			canvas.drawLine(frameStartX, centerY, frameEndX, centerY, linePaintDashed);
+//			whiteTextPaint.setTextAlign(Align.RIGHT);
+//			canvas.drawText(middleText, marginLeftPortrait - 4, centerY + textSize / 2	- 2, whiteTextPaint);
+//		}
+//		// 画左边文字
+//		canvas.drawText(hightText, bottomFrameStartX + marginLeftPortrait,bottomFrameStartY + textSize, whiteTextPaint);
+//		canvas.drawText(lowText, bottomFrameStartX + marginLeftPortrait,bottomFrameEndY, whiteTextPaint);
+//		// 一个竖向格子是多少百分点
+//		// 画dif线、画dea线
+//		float kPointWidthFixed = this.kPointWidth + 1;// 每个柱子的宽度，加1表示柱子左右的间隙
+//		double data[];float pointX,pointY;double d;
+//		Path path;
+//		boolean fixMaxMin=range.fixMaxMin();
+//		for(ExpressionValue value:values){
+//				if(!value.isNeedDraw()||entity.getDiagramType(value.getParamName())==2)continue;
+//				path = new Path();
+//				data=(double[])value.getData();
+//				for (int i = start,index=0; i < end; i++) {
+//					/*if(i>=data.length){
+//						PriceLogger.zdy_e("allPointList size:"+raw_size+"offset:"+offset);
+//						return;
+//					}*/
+//					pointX = kPointWidthFixed * (i-start) + kPointWidthFixed / 2+ getMarginLeft();// 整个poiont的x坐标计算方法是固定的
+//					d=data[i];
+//					if(!ku.isDoubleValid(d))continue;
+//					if(fixMaxMin){
+//						if(d>max)d=max;
+//						if(d<min)d=min;
+//					}
+//					pointY=(float) ((max - d) * pixelsInSpaceing + this.bottomFrameStartY);
+////					PriceLogger.klp("pointX:"+pointX+"   pointY:"+pointY);
+//					if (index == 0) {
+//						path.moveTo(pointX, pointY);
+//					} else {
+//						path.lineTo(pointX, pointY);
+//					}
+//					index++;
+//				}
+//				int color=getColor(entity, value);
+//				zdygs_quato_paint.setColor(color);
+//				canvas.drawPath(path, zdygs_quato_paint);
+//		}
+//
+//		drawZhuZi(values, canvas, entity, start, max, pixelsInSpaceing);
+//	}
+//	private void drawZhuZi(List<ExpressionValue> values, Canvas canvas,
+//			HTExpressionEntity entity, int start, double max,
+//			float pixelsInSpaceing) {
+//		float pointX;
+//		float pointY;
+//		//画柱子
+//		float kPointWidthWithMargin=this.kPointWidth+1;
+//		float halfKW=kPointWidthWithMargin/2;
+//		//获得MACD的数组
+//		double[] macd = null;String pName;double y;
+//		for(ExpressionValue ev:values){
+//			pName=ev.getParamName();
+//
+//			if(entity.getDiagramType(pName)!=2){
+//				continue;
+//			}
+//			if(ev.getData()!=null&&ev.getData() instanceof double[])
+//			macd=(double[])ev.getData();
+//		}
+//		if(macd==null)return;
+//		float zeroPos=(float)(max*pixelsInSpaceing)+bottomFrameStartY;
+//		for (int i = 0,len=this.curPointList.size(); i < len; i++) {
+//			pointX=marginLeftPortrait+i*kPointWidthWithMargin+halfKW;
+//			y=macd[i+start];
+//			if(!ku.isDoubleValid(y))continue;
+//			pointY=(float) ((max-y)*pixelsInSpaceing)+bottomFrameStartY;
+//			if(macd[i+start]>0){
+//				canvas.drawLine(pointX, pointY, pointX, zeroPos, kPaintRed);
+//			}else{
+//				canvas.drawLine(pointX, zeroPos, pointX, pointY, kPaintGreen);
+//			}
+//		}
+//	}
+//	public int getColor(HTExpressionEntity entity,ExpressionValue value){
+//		String name=value.getParamName().trim();
+//		List<HTStatementEntity> states=entity.getStatementList();
+//		if(states!=null)
+//		for(HTStatementEntity state:states){
+//			if(state.getStatementName().trim().equalsIgnoreCase(name)){
+//				return state.getColor();
+//			}
+//		}
+//		return Color.WHITE;
+//	}
+//
+
+	/**
+	 * 清空view，只留下框子
+	 */
+	public void clearView() {
+
+		// 加判断避免:调用此方法的时候surfaceview还没有创建完成
+		if (this.holder == null) {
+			return;
+		}
+		Canvas canvas = this.holder.lockCanvas();
+		if (canvas == null) {
+			return;
+		}
+		canvas.drawColor(
+				context.getResources().getColor(
+						R.color.white),
+				PorterDuff.Mode.SRC);
+		Log.i("doithh", "clearView");
+
+		drawFrame(canvas);
+		//drawBottomeFrame(canvas);
+		holder.unlockCanvasAndPost(canvas);
+	}
+	public void clearViewNoFrame() {
+		// 加判断避免:调用此方法的时候surfaceview还没有创建完成
+		if (this.holder == null) {
+			return;
+		}
+		Canvas canvas = this.holder.lockCanvas();
+		if (canvas == null) {
+			return;
+		}
+
+//		canvas.drawColor(
+//				context.getResources().getColor(
+//						R.color.white),
+//				PorterDuff.Mode.SRC);
+		canvas.drawLine(1, 1, 1, 1, linePaint);
+//		//drawBottomeFrame(canvas);
+		holder.unlockCanvasAndPost(canvas);
+	}
+	/**
+	 * 重新绘制整个view
+	 *
+	 * @param selectedKPoint
+	 *            可以为null，为null时横向文字部分显示最后一个柱子，非null时显示该柱子的信息
+	 */
+	public  void refreshKLine(KPointEntity selectedKPoint) {
+		// 加判断避免:调用此方法的时候surfaceview还没有创建完成
+		if (this.holder == null) {
+			return;
+		}
+		Canvas canvas = this.holder.lockCanvas();
+		if (canvas == null) {
+
+			return;
+		}
+		setEndPoint();
+		List<KPointEntity> allPointList=this.allPointList;
+		int raw_size=allPointList.size();//allPointList在刷新时长度会变，这里先取下长度;
+//		List<ExpressionValue> values=this.values;
+//		HTExpressionEntity entity=this.entity;
+		boolean hasLoadedAllPointList=this.hasLoadedAllPointList;
+		canvas.drawColor(
+				context.getResources().getColor(
+						R.color.white),
+				PorterDuff.Mode.SRC);
+		Log.i("doithh", "refreshKLine");
+
+		drawFrame(canvas);
+		//	drawBottomeFrame(canvas);
+		if (raw_size > 0) {
+			initCurPositionList(raw_size);
+			if (selectedKPoint == null) {
+				drawTopText(canvas,this.curPointList.get(this.curPointList.size() - 1));// 画PMA的数字，默认的画最后一个柱子
+				if (hasLoadedAllPointList) {
+					//drawMidleText(canvas,this.curPointList.get(this.curPointList.size() - 1),raw_size);// 画指标数字
+				}
+			} else {
+				drawTopText(canvas, selectedKPoint);// 画PMA的数字，绘制传过来的柱子
+				if (hasLoadedAllPointList) {
+					//drawMidleText(canvas, selectedKPoint,raw_size);// 画指标数字
+				}
+			}
+			drawLeftPriceText(canvas);// y轴文字
+			//	drawBottomText(canvas,raw_size);// x轴文字
+			drawAllCurrentKPpoint(canvas);
+			drawPMA(canvas);
+//			if (hasLoadedAllPointList) {
+//				if(values!=null)
+//				drawBottomQuato(values, canvas, entity,raw_size);
+//				else{
+//					draw_Middle_Error(canvas,entity);
+//				}
+//			}
+		}
+		holder.unlockCanvasAndPost(canvas);
+	}
+
+	public void move(boolean isMoveToRight, int count) {
+		// 如果柱子总数不满一屏，就不移动
+		if (allPointList.size() <= this.kPointCount) {
+			return;
+		}
+		if (isMoveToRight) {
+			offset += count;
+			// 有可能只差1个就到头了，而count传过来是大于1的的数，所以应该在计算完判断
+			if (offset > allPointList.size() - this.kPointCount) {
+				offset -= count;// 恢复原状
+				return;
+			}
+		} else {
+			offset -= count;
+			// 有可能只差1个就到头了，而count传过来是大于1的的数，所以应该在计算完判断
+			if (offset < 0) {
+				offset += count;
+				return;
+			}
+		}
+		refreshKLine(null);
+	}
+
+	// //////////////////////////////////////////////////onTouch事件
+	float startX = 0, startY, endX, endY;
+	float offsetPixels;
+	int mode = 0;// 触摸屏幕的点的数量
+	float oldDist;
+	boolean canMove = true;// 防止双指抬起时的抖动，双指抬起一个手指后禁止滑动。
+	float startX2 = 0, endX2;// 用于判断从按下到抬起是否算作移动
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			case MotionEvent.ACTION_DOWN:
+				startX = event.getX();
+				startX2 = event.getX();
+				startY = event.getY();
+				endX = event.getX();
+				endX2 = event.getX();
+				endY = event.getY();
+				mode = 1;
+				break;
+			case MotionEvent.ACTION_MOVE:
+//			if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//				return super.onTouchEvent(event);
+//			}
+				// 如果是缩放手势
+				if (mode >= 2) {
+					float newDist = KLineUtils.spacing(event);
+					if (newDist > oldDist + 1) {
+						zoom(newDist / oldDist);
+						oldDist = newDist;
+					}
+					if (newDist < oldDist - 1) {
+						zoom(newDist / oldDist);
+						oldDist = newDist;
+					}
+				}
+				else if (canMove) {
+					endX = event.getX();
+					endY = event.getY();
+					offsetPixels = endX - startX;
+					if (offsetPixels > (this.kPointWidth + 1)) {
+						move(true, (int) (offsetPixels / (this.kPointWidth + 1)));
+						startX = endX;
+						startY = endY;
+					} else if (offsetPixels < -(this.kPointWidth + 1)) {
+						move(false, (int) (-offsetPixels / (this.kPointWidth + 1)));
+						startX = endX;
+						startY = endY;
+					}
+				}
+				break;
+			case MotionEvent.ACTION_UP:
+				endX2 = event.getX();
+				// 双指全都抬起后才能滑动（当然，下次需要单指触摸）
+				canMove = true;
+				float offset2 = endX2 - startX2;
+//			if(event.getY()<this.bottomFrameStartY){
+				if (Math.abs(offset2) < (this.kPointWidth + 1)) {
+					// 把curPointList传给画十字线的view，让它画十字线
+					view_cross_line.setCurPointList(curPointList);
+					view_cross_line.startDrawCrossLine(event.getX());
+					view_cross_line.setCanTouch(true);
+					if (viewPager != null) {
+						viewPager.setCanScroll(false);
+					}
+				}
+//			}else {
+//				//changeQuato();
+//			}
+				mode = 0;
+				break;
+			case MotionEvent.ACTION_POINTER_UP:
+				// 双指抬起一个手指后禁止滑动
+				canMove = false;
+				mode -= 1;
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN:
+				oldDist = KLineUtils.spacing(event);
+				mode += 1;
+				break;
+		}
+		return true;
+	}
+
+//    @Override
+//    public boolean onFilterTouchEventForSecurity(MotionEvent event) {
+//        return false;
+//    }
+
+	//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        return false;
+//    }
+//	private void changeQuato() {
+//		Context ctx=this.getContext();
+//		if(ctx instanceof PriceDetailActivity){
+//			PriceDetailActivity pda=(PriceDetailActivity)ctx;
+//			pda.changeNextQuato();
+//		}
+//	}
+
+
+
+
+	/**
+	 * 伸缩柱子宽度
+	 *
+	 * @param f
+	 */
+	private void zoom(float f) {
+		if (K_POINT_WIDTH_DP > 30 && f >= 1) {
+			return;
+		}
+		if (K_POINT_WIDTH_DP < 5 && f <= 1) {
+			return;
+		}
+		K_POINT_WIDTH_DP = K_POINT_WIDTH_DP * f;
+		int newKPointWidth = ScreenSizeUtil.Dp2Px(context, K_POINT_WIDTH_DP);
+		float frameWidth = this.frameEndX - this.frameStartX;
+		float delta = frameWidth % (newKPointWidth + 1);
+		if (delta < 5) {
+			kPointWidth = newKPointWidth;
+			refreshKLine(null);
+		}
+	}
+
+	// ////////////////////////////////////////////////Holder的回调接口
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		Logger.v(" surfaceCreated");
+		setEndPoint();
+//		refreshKLine(null);
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+							   int height) {
+		setEndPoint();
+
+//		refreshKLine(null);
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+	}
+
+	/**
+	 * 添加新柱子以后，计算涨跌并刷新
+	 */
+	public void afterAppendNewKPoints(List<KPointEntity> newPointsList) {
+		// 根据前一个点计算涨跌，此处应该只计算后面的
+		KLineUtils.calUpOrDown(this.allPointList,
+				(allPointList.size() - newPointsList.size()));
+		refreshKLine(null);
+	}
+
+	// ///////////////////////////////////////getters and setters
+	public void setAllPointList(final KLineEntity entity) {
+
+		AsyncTask<Void, Void, Boolean> aync=new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected void onPreExecute() {
+				super.onPreExecute();
+			}
+
+			@Override
+			protected Boolean doInBackground(Void... arg0) {
+				if(!entity.isNeedCalUporDown()){
+					allPointList = entity.getRecordList();
+					return true;
+				}
+				ActivityUtils.initStartTime(System.currentTimeMillis());
+				allPointList = entity.getRecordList();
+				KLineUtils.calUpOrDown(allPointList);
+				entity.setNeedCalUporDown(false);
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				super.onPostExecute(result);
+				refreshKLine(null);
+			}
+		}.execute();
+		//ku.addAsynTask(this,aync);
+	}
+
+	public List<KPointEntity> getAllPointList() {
+		return allPointList;
+	}
+
+	/**
+	 * 重置一些重要数值
+	 */
+	public void reset() {
+		this.allPointList = new ArrayList<KPointEntity>();// 所有柱子
+		this.curPointList = new ArrayList<KPointEntity>();// 当前显示的柱子
+		this.offset = 0;// 因为滑动引起的偏移量，单位：柱子
+	}
+
+	public void setView_cross_line(KLineCrossLineView view_cross_line) {
+		// 设置滑动十字线时的回调函数
+		view_cross_line.setOnKPointSelectedListener(this);
+		this.view_cross_line = view_cross_line;
+	}
+
+	public void setViewPager(CustomViewPager viewPager) {
+		this.viewPager = viewPager;
+	}
+
+	private float getMarginLeft() {
+		return marginLeftPortrait;
+	}
+
+	@Override
+	public void onKPointSelected(KPointEntity kPoint) {
+		refreshKLine(kPoint);
+	}
+
+	public KLineViewCallBack getkLineViewCallBack() {
+		return kLineViewCallBack;
+	}
+
+	public void setkLineViewCallBack(KLineViewCallBack kLineViewCallBack) {
+		this.kLineViewCallBack = kLineViewCallBack;
+	}
+
+	/**
+	 * 统一获取商品编号
+	 */
+	private int getCommodityNumber() {
+		return mApplication.getCurrentTradeEntity().getPriceData().getPriceRuntimeData().getCurrentCommodityNumber();
+	}
+
+	@Override
+	public void onClearCrossLine() {
+		refreshKLine(null);
+	}
+
+
+	private void initPaint() {
+		this.linePaint = new Paint();
+		this.linePaint.setAntiAlias(true);
+		this.linePaint.setColor(getResources().getColor(R.color.text_grey));
+		this.linePaint.setStrokeWidth(1);
+
+		this.linePaintDashed = new Paint();
+		this.linePaintDashed.setAntiAlias(true);
+		this.linePaintDashed.setColor(getResources().getColor(R.color.text_grey));
+		this.linePaintDashed.setStrokeWidth(1);
+		PathEffect effects = new DashPathEffect(new float[] { 4, 4, 4, 4 }, 1);
+		this.linePaintDashed.setPathEffect(effects);
+
+		this.kPaintRed = new Paint();
+		this.kPaintRed.setAntiAlias(true);
+		this.kPaintRed.setColor(getResources().getColor(
+				R.color.text_red));
+		this.kPaintRed.setStrokeWidth(1.0f);
+
+		this.kPaintGreen = new Paint();
+		this.kPaintGreen.setAntiAlias(true);
+		this.kPaintGreen.setColor(getResources().getColor(
+				R.color.text_green));
+		this.kPaintGreen.setStrokeWidth(1.0f);
+
+		this.greenTextPaint = new Paint();
+		this.greenTextPaint.setAntiAlias(true);
+		this.greenTextPaint.setColor(getResources().getColor(
+				R.color.text_green));
+		this.greenTextPaint.setStrokeWidth(1);
+		this.greenTextPaint.setTextSize(20);// 字号在后面会根据小格的宽度重新设定，此处无效
+
+		this.whiteTextPaint = new Paint();
+		this.whiteTextPaint.setAntiAlias(true);
+		this.whiteTextPaint.setColor(getResources().getColor(
+				R.color.black));
+		this.whiteTextPaint.setStrokeWidth(1);
+		this.whiteTextPaint.setTextAlign(Align.RIGHT);// 这是默认的，注意：每次使用之前都需要手动设定对齐方向！
+		this.whiteTextPaint.setTextSize(20);// 字号在后面会根据小格的宽度重新设定，此处无效
+
+		int dp1 = ScreenSizeUtil.Dp2Px(context, 1);
+		this.pma5Paint = new Paint();
+		this.pma5Paint.setAntiAlias(true);
+		this.pma5Paint.setColor(getResources().getColor(
+				R.color.kline_pma5));
+		this.pma5Paint.setStrokeWidth(dp1);
+		this.pma5Paint.setStyle(Paint.Style.STROKE);
+
+		this.zdygs_quato_paint = new Paint();
+		this.zdygs_quato_paint.setAntiAlias(true);
+		this.zdygs_quato_paint.setStrokeWidth(dp1);
+		this.zdygs_quato_paint.setStyle(Paint.Style.STROKE);
+
+		this.pma10Paint = new Paint();
+		this.pma10Paint.setAntiAlias(true);
+		this.pma10Paint.setColor(getResources().getColor(
+				R.color.kline_pma10));
+		this.pma10Paint.setStrokeWidth(dp1);
+		this.pma10Paint.setStyle(Paint.Style.STROKE);
+
+		this.pma20Paint = new Paint();
+		this.pma20Paint.setAntiAlias(true);
+		this.pma20Paint.setColor(getResources().getColor(
+				R.color.kline_pma20));
+		this.pma20Paint.setStrokeWidth(dp1);
+		this.pma20Paint.setStyle(Paint.Style.STROKE);
+
+		this.pma30Paint = new Paint();
+		this.pma30Paint.setAntiAlias(true);
+		this.pma30Paint.setColor(getResources().getColor(
+				R.color.kline_pma30));
+		this.pma30Paint.setStrokeWidth(dp1);
+		this.pma30Paint.setStyle(Paint.Style.STROKE);
+
+
+
+		// 文字
+		this.pma5TextPaint = new Paint();
+		this.pma5TextPaint.setAntiAlias(true);
+		this.pma5TextPaint.setColor(getResources().getColor(
+				R.color.kline_pma5));
+		this.pma5TextPaint.setTextSize(20);
+
+		this.pma10TextPaint = new Paint();
+		this.pma10TextPaint.setAntiAlias(true);
+		this.pma10TextPaint.setColor(getResources().getColor(
+				R.color.kline_pma10));
+		this.pma10TextPaint.setTextSize(20);
+
+		this.pma20TextPaint = new Paint();
+		this.pma20TextPaint.setAntiAlias(true);
+		this.pma20TextPaint.setColor(getResources().getColor(
+				R.color.kline_pma20));
+		this.pma20TextPaint.setTextSize(20);
+
+		this.pma30TextPaint = new Paint();
+		this.pma30TextPaint.setAntiAlias(true);
+		this.pma30TextPaint.setColor(getResources().getColor(
+				R.color.kline_pma30));
+		this.pma30TextPaint.setTextSize(20);
+
+
+	}
+}

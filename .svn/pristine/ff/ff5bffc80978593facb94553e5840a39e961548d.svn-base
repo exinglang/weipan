@@ -1,0 +1,662 @@
+package com.puxtech.weipan.util;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.Snackbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.puxtech.weipan.MyApplication;
+import com.puxtech.weipan.R;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.TimeZone;
+
+/**
+ * Created by mac on 15/11/4.
+ */
+public class ActivityUtils {
+
+    /**
+     * 带标题的进度圈对话框，没有标题，自定义内容
+     *
+     * @param context
+     * @return
+     */
+    public static Dialog showLoadingProgressDialog(Context context,
+                                                   String message) {
+        View view = LayoutInflater.from(context).inflate(
+                R.layout.view_progress_dialog, null);
+        if (!TextUtils.isEmpty(message)) {
+            TextView tv_message = (TextView) view.findViewById(R.id.tv_message);
+            tv_message.setText(message);
+        }
+        Dialog dialog = new Dialog(context,
+                R.style.Dialog_Transparent);
+        dialog.setContentView(view);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        return dialog;
+    }
+
+
+    /**
+     * 取出前16个byte
+     *
+     * @param strKey
+     * @return
+     */
+    public static byte[] get16byte(String strKey) {
+        try {
+            byte[] arrBTmp = strKey.getBytes();
+            byte[] arrB = new byte[16]; // 创建一个空的16位字节数组（默认值为0）
+
+            for (int i = 0; i < arrBTmp.length && i < arrB.length; i++) {
+                arrB[i] = arrBTmp[i];
+            }
+            return arrB;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 进度圈对话框
+     *
+     * @param context
+     * @return
+     */
+    public static Dialog showLoadingProgressDialog(Context context) {
+        View view = LayoutInflater.from(context).inflate(
+                R.layout.view_progress_dialog, null);
+
+        Dialog dialog = new Dialog(context,
+                R.style.Dialog_Transparent);
+        dialog.setContentView(view);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        return dialog;
+    }
+
+    /**
+     * 显示Snackbar,只有message
+     *
+     * @param context
+     * @param view
+     * @param message
+     */
+    public static void showSnackbar(Context context, View view,
+                                    String message) {
+        showSnackbar(context, view, message, null, null);
+    }
+
+
+    /**
+     * 显示Snackbar,带action和点击事件
+     *
+     * @param context
+     * @param view
+     * @param message
+     * @param action
+     * @param onClickListener
+     */
+    public static void showSnackbar(Context context, View view,
+                                    String message, String action, View.OnClickListener onClickListener) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        View snackbarView = snackbar.getView();
+        ((TextView) snackbarView.findViewById(R.id.snackbar_text)).setTextColor(context.getResources().getColor(R.color.white));
+        snackbar.setAction(action, onClickListener).show();
+    }
+
+    /**
+     * 显示一个自定义内容的对话框，标题是应用名称
+     */
+    public static void showMessageDialog(Context context, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getResources().getString(
+                R.string.app_name));
+        builder.setMessage(message);
+        builder.setPositiveButton(
+                context.getResources().getString(android.R.string.ok), null);
+        builder.show();
+    }
+
+    /**
+     * 获得每次用户上传的id 要求同一个用户在不同的时间上传不同的id，不同的用户在
+     */
+    public static String getId(MyApplication myapp) {
+        // String zid = myapp.getZid();
+        long time = System.currentTimeMillis();
+        // return bytesToHexString(MD5.getMD5(zid + time));
+        return bytesToHexString(MD5.getMD5(String.valueOf(time)));
+    }
+
+    /**
+     * 随机生成一个以0开头,不可能存在的模拟身份证号
+     */
+    public static String getRandomId() {
+        String result = "0";
+        for (int i = 0; i < 17; i++) {
+            Random random = new Random();
+            int a = random.nextInt(10);
+            result = result + a;
+        }
+        return result;
+    }
+
+    // 将long型时间转化为可读格式
+    public static String millisTime(long time) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date(time));
+    }
+
+    public static Bitmap toRoundCorner(Bitmap bitmap, float ratio) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final RectF rectF = new RectF(rect);
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        canvas.drawRoundRect(rectF, bitmap.getWidth() / ratio,
+                bitmap.getHeight() / ratio, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        return output;
+
+    }
+    /**
+     * 将byte数组转化为16进制字符串
+     *
+     * @param src
+     * @return
+     */
+    public static String bytesToHexString(byte[] src) {
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        for (int i = 0; i < src.length; i++) {
+            int v = src[i] & 0xFF;
+            String hv = Integer.toHexString(v);
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+        }
+        return stringBuilder.toString();
+    }
+
+    public static void showCenterToast(Context context, CharSequence text,
+                                       int duration) {
+        Toast toast = null;
+        toast = Toast.makeText(context, text, duration);
+        if (toast != null) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View layout = inflater.inflate(R.layout.toastlayout, null);
+            TextView tv_content = (TextView) layout
+                    .findViewById(R.id.tv_content);
+            tv_content.setText(text);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.setView(layout);
+            toast.setDuration(duration);
+            toast.show();
+        }
+    }
+
+    // 将科学计数法的数字以小数的形式显示出来
+    public static String handle(String feevvalue) {
+        BigDecimal d = new BigDecimal(feevvalue);
+        String s = d.toPlainString();
+        return s;
+    }
+
+    /**
+     * 将指定字符串转换成保留两位的double形式
+     *
+     * @param d
+     * @return
+     * @throws Exception
+     */
+    public static String changeDouble(String d) throws NumberFormatException {
+
+        BigDecimal bd1 = new BigDecimal(d);
+        try {
+            bd1 = bd1.setScale(2, BigDecimal.ROUND_HALF_UP);
+        } catch (NumberFormatException e) {
+        }
+        return bd1.toString();
+    }
+
+    /**
+     * 将指定的字符串转换成制定小数点位数的String字符串
+     *
+     * @param d
+     * @param scales
+     * @return
+     */
+    public static String changeDouble(String d, String scales) {
+
+        BigDecimal bd1 = new BigDecimal(d);
+        BigDecimal bd2 = new BigDecimal(scales);
+        bd1 = bd1.setScale(bd2.scale(), BigDecimal.ROUND_HALF_UP);
+        return bd1.toString();
+    }
+
+    /**
+     * 将 String类型的参数转换成2012-01-02 09:21:11 格式的时间类型
+     *
+     * @param data 1970 - 1 -1 0：0 ：0 至指定时间的毫秒数
+     * @return
+     */
+    public static String getRealData(String data) {
+        SimpleDateFormat sdf5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d = new Date(Long.valueOf(data));
+        return sdf5.format(d);
+    }
+
+    /**
+     * 将 Long类型的参数转换成2012-01-02 09:21:11 格式的时间类型
+     *
+     * @param data 1970 - 1 -1 0：0 ：0 至指定时间的毫秒数
+     * @return
+     */
+    public static String getRealData(Long data) {
+        SimpleDateFormat sdf5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d = new Date(data);
+        return sdf5.format(d);
+    }
+
+    public static long startMills = 0;
+
+    public static void initStartTime(long mills) {
+        startMills = mills;
+    }
+
+    /**
+     * 保留指定位数的小数
+     *
+     * @param price      要处理的数字
+     * @param lowestUnit 最小变动价位
+     * @return price/Math.pow(10, lowestUnit)+basePrice
+     */
+    public static double changeDoubleForPrice(double price, double basePrice,
+                                              int lowestUnit) {
+
+        return price / Math.pow(10, lowestUnit) + basePrice;
+    }
+
+
+    /**
+     * 自定义下拉列表,现用于商品名称下拉框
+     *
+     * @param tv_commodity
+     * @param arrayList
+     * @param lv_OnItemSelectedLis
+     */
+    public static PopupWindow setSpinnerAdapter(final View tv_commodity,
+                                                final List<String> arrayList,
+                                                AdapterView.OnItemClickListener lv_OnItemSelectedLis) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                tv_commodity.getContext(), R.layout.drop_down_textview_ny,
+                arrayList);
+        PopupWindow pop = getPop(tv_commodity.getContext(),
+                adapter, lv_OnItemSelectedLis);
+        tv_commodity.setTag(pop);
+        tv_commodity.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                PopupWindow pop = (PopupWindow) v.getTag();
+                if (!pop.isShowing()) {
+                    pop.showAsDropDown(v, 0,
+                            ScreenSizeUtil.Dp2Px(tv_commodity.getContext(), 3));
+                }
+            }
+        });
+        tv_commodity.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int width = tv_commodity.getWidth();
+                        PopupWindow pop = (PopupWindow) tv_commodity.getTag();
+                        pop.setWidth(width);
+                    }
+                });
+        return pop;
+    }
+
+    public static PopupWindow getPop(Context context,
+                                     ArrayAdapter<String> data, AdapterView.OnItemClickListener lv_OnItemSelectedLis) {
+        final View popView = LayoutInflater.from(context).inflate(
+                R.layout.dropdownpopwindows, null);
+        ListView lv = (ListView) popView;
+        if (lv_OnItemSelectedLis != null) {
+
+            lv.setOnItemClickListener(lv_OnItemSelectedLis);
+        }
+        lv.setAdapter(data);
+
+        final PopupWindow selectLoc = new PopupWindow(popView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        lv.setTag(selectLoc);
+        ColorDrawable cd = new ColorDrawable(0xb0000000);
+        selectLoc.setBackgroundDrawable(cd);
+        selectLoc.setFocusable(true);
+
+        selectLoc.setOutsideTouchable(true);
+        return selectLoc;
+    }
+
+    public static void setTextViewRightDrawable(TextView v, int resId) {
+        Drawable drawable = v.getContext().getResources().getDrawable(resId);
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(),
+                drawable.getMinimumHeight());
+        ((TextView) v).setCompoundDrawables(null, null, drawable, null);
+    }
+
+    /**
+     * 将String(毫秒数)类型的参数转换成201201021212 格式的时间类型
+     *
+     * @param data 1970 - 1 -1 0：0 ：0 至指定时间的毫秒数
+     * @return
+     */
+    public static String getRealTimeOfInteger(String data) {
+        Date d = new Date(Long.valueOf(data));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"));
+        calendar.setTime(d);
+
+        return getIntegerDate(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
+    }
+
+
+    /**
+     * 将String类型的参数转换成2012-01-02 格式的时间类型
+     *
+     * @param data 1970 - 1 -1 0：0 ：0 至指定时间的毫秒数
+     * @return
+     */
+    public static String getRealData2(String data) {
+        SimpleDateFormat sdf5 = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = new Date(Long.valueOf(data));
+        return sdf5.format(d);
+    }
+
+    /**
+     * 获取Integer类型的时间 如: 201201021212
+     *
+     * @param year
+     * @param month
+     * @param day
+     * @return
+     */
+    public static String getIntegerDate(int year, int month, int day, int hour,
+                                        int min) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("").append(year);
+        if (month < 10) {
+            sb.append("0");
+        }
+
+        sb.append(month);
+        if (day < 10) {
+            sb.append("0");
+        }
+        sb.append(day);
+        if (hour < 10) {
+            sb.append("0");
+        }
+        sb.append(hour);
+        if (min < 10) {
+            sb.append("0");
+        }
+        sb.append(min);
+        return sb.toString();
+    }
+
+    /**
+     * 显示一个包含是否两个按钮的提示
+     *
+     * @param
+     */
+    public static void showAlertWithConfirmText(Context context, String alertText, String confirmText, final Runnable confirmRunnable) {
+        AlertDialog.Builder bd = new AlertDialog.Builder(context);
+        bd.setMessage(alertText);
+        bd.setPositiveButton(confirmText,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        confirmRunnable.run();
+                    }
+                });
+        bd.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        bd.show();
+    }
+
+    /**
+     * 显示一个包含是否两个按钮的提示
+     *
+     * @param
+     */
+    public static void showAlertWithConfirmTextCancelText(Context context, String alertText, String confirmText, String cancelText, final Runnable confirmRunnable, final Runnable cancelRunnable) {
+        AlertDialog.Builder bd = new AlertDialog.Builder(context);
+        bd.setMessage(alertText);
+        bd.setPositiveButton(confirmText,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        confirmRunnable.run();
+                    }
+                });
+        bd.setNegativeButton(cancelText, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                cancelRunnable.run();
+            }
+        });
+        bd.show();
+    }
+
+    public static void showAlert(Context context, String msg) {
+        // if (isVisabing)
+        new AlertDialog.Builder(context)
+
+                .setMessage(msg)
+                .setPositiveButton(R.string.confirm,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.cancel();
+                            }
+                        }).setCancelable(false).show();
+    }
+
+    public static void showAlert_onlyOk(Context context, String msg,
+                                        final Runnable r) {
+        new AlertDialog.Builder(context)
+
+                .setMessage(msg)
+                .setPositiveButton(R.string.confirm,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                if (r != null)
+                                    r.run();
+                            }
+                        }).setCancelable(false).show();
+    }
+
+    //得到昨天的23:59:59秒的时间
+    public static String getYesterday235959() {
+
+
+        Long timeMillis1 = null;
+        try {
+
+            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(date);
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH) - 1, 23, 59, 59);
+            timeMillis1 = calendar.getTimeInMillis();//        if (start.after(end)) {
+            timeMillis1 = addUTCTime(timeMillis1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return timeMillis1 + "";
+
+    }
+
+    //得到今天的23:59:59秒的时间
+    public static String getToday235959() {
+
+
+        Long timeMillis1 = null;
+        try {
+
+            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(date);
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+            timeMillis1 = calendar.getTimeInMillis();//        if (start.after(end)) {
+            timeMillis1 = addUTCTime(timeMillis1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return timeMillis1 + "";
+
+    }
+
+    //得到一个月以前的的00:00:00秒的时间
+    public static String getPreOneMonth000000() {
+
+
+        Long timeMillis1 = null;
+        try {
+
+            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(date);
+            //为防止一个月前的时间.超出服务器验证,此处,DAY+1
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) - 1, calendar.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
+            timeMillis1 = calendar.getTimeInMillis();//        if (start.after(end)) {
+            timeMillis1 = addUTCTime(timeMillis1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return timeMillis1 + "";
+
+    }
+
+    //因服务器将传过去时间的作了UTC转换,但实际前置内核查询并未转换时间,所以此处做逆向操作,将查询的时间,加上相应的UTC时差
+    public static long addUTCTime(long timeMillis) {
+
+        Calendar cal = Calendar.getInstance(Locale.getDefault());
+        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET);
+        int dstOffset = cal.get(java.util.Calendar.DST_OFFSET);
+
+        timeMillis = timeMillis + zoneOffset + dstOffset;//        if (start.after(end)) {
+
+
+        return timeMillis;
+    }
+
+    /**
+     * 得到 YYYY-MM-DD格式的字符串
+     *
+     * @param timeMillis
+     * @return
+     */
+    public static String getYYYYMMDDforTimeMillis(long timeMillis) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+        String date = df.format(new Date(timeMillis));
+        return date;
+    }
+
+    /**
+     * 将yyyy-MM-dd转为毫秒,多线程时,可能出现转换时间不对的问题,此处直接设置为00:00:00
+     *
+     * @param yyyymmdd
+     * @return
+     */
+    public static String getTimeMillisFromYYYYMMDDset000000(String yyyymmdd, boolean addUTC) {
+
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+        Long timeMillis1 = null;
+        try {
+            Date date = df.parse(yyyymmdd);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+            timeMillis1 = calendar.getTimeInMillis();//        if (start.after(end)) {
+            if (addUTC) {
+                timeMillis1 = addUTCTime(timeMillis1);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return timeMillis1 + "";
+    }
+
+    public static String getTimeMillisFromYYYYMMDDset235959(String yyyymmdd, boolean addUTC) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+        Long timeMillis1 = null;
+        try {
+            Date date = df.parse(yyyymmdd);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+
+
+            timeMillis1 = calendar.getTimeInMillis();//        if (start.after(end)) {
+            if (addUTC) {
+                timeMillis1 = addUTCTime(timeMillis1);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return timeMillis1 + "";
+    }
+
+
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent">#00000000</color>
+    <color name="common_background">#F0EFF4</color>
+    <color name="common_devider">#E6E6E6</color>
+    <color name="common_selected">#D9D9D9</color>
+
+    <color name="common_orange_deep">#FF6223</color>
+    <color name="unselect_text_grey">#DDDDDD</color>
+
+    <color name="colorPrimary">#FF6223</color>
+    <color name="dark_primary">#FF6223</color>
+    <color name="primary">#FF6223</color>
+
+    <color name="light_primary">#FF6223</color>
+
+    <color name="white">#ffffffff</color>
+    <color name="black">#000000</color>
+    <color name="text_grey">#999999</color>
+    <color name="home_button_blue">#00ACE9</color>
+    <color name="home_function_button_zhang">#F12937</color>
+    <color name="home_function_button_die">#00CC80</color>
+
+    <color name="home_button_orange">#FF9731</color>
+    <color name="home_button_red">@color/text_red</color>
+
+    <drawable name="text_bottom_main_activity">#b5b1b0</drawable>
+    <color name="text_bottom_main_activity">#b5b1b0</color>
+    <drawable name="text_bottom_main_activity_selected">#54A6FF</drawable>
+    <!-- 加载中dialog的背景 -->
+    <drawable name="bg_progress_dialog">#bb000000</drawable>
+<!--分时图-->
+    <color name="cross_line">#FF9731</color>
+    <color name="text_red">#ff2c2c</color>
+    <color name="time_line_average">#B9A51E</color>
+    <color name="text_green">#00CC80</color>
+
+    <!-- 行情小红色文字颜色 -->
+    <color name="price_text_red_small">#ff2c2c</color>
+    <color name="price_text_green_small">#00ff00</color>
+    <!-- 分时数据价格线的颜色 -->
+    <color name="time_line_price">#7BB6E8</color>
+    <!-- 分时数据价格线的填充颜色 -->
+    <color name="time_line_price_fill">#330000ff</color>
+
+    <color name="price_detail_line_bg">#FFFFFF</color>
+    <color name="price_detail_line_bg_dark">#FFFFFF</color>
+    <color name="price_detail_line_bg_divider">#FFFFFF</color>
+    <!-- 框架和虚线 -->
+    <color name="price_detail_line_dash">#393b47</color>
+
+    <drawable name="priceactivity_list_child_bg">#2b2d38</drawable>
+    <drawable name="priceactivity_list_child_bg_pressed">#0082ff</drawable>
+
+    <color name="price_listview_divider">#242632</color>
+    <color name="price_listview_bg">#1d1f27</color>
+    <!-- 行情详情页底部标签文字 -->
+    <drawable name="price_deatail_bottom_text">#ff98999b</drawable>
+    <drawable name="price_deatail_bottom_text_warn">#fffc5f28</drawable>
+    <drawable name="price_deatail_bottom_text_pressed">#54A6FF</drawable>
+    <color name="pricedetailactivity_cycle_item_bg_normal">#00000000</color>
+    <color name="pricedetailactivity_cycle_item_bg_selected">#FF1F1D1E</color>
+    <color name="pricedetailactivity_cycle_item_text_normal">#686667</color>
+    <color name="pricedetailactivity_cycle_item_text_selected">#FFFFFF</color>
+
+    <color name="widghtbg">#FC5F28</color>
+    <color name="commonblue">#5390D7</color>
+    <color name="commonblue_ny">#5390D7</color>
+    <color name="widghthuibg">#A94A17</color>
+    <color name="light_white">#A8cccccc</color>
+    <color name="light_dark">#333333</color>
+    <color name="lighter_dark">#B0B0B0</color>
+    <color name="capital_head_title_bg">#313134</color>
+    <color name="capital_head_title_textcolor">#999999</color>
+
+
+    <color name="kline_pma5">#BDBDD4</color>
+    <color name="kline_pma10">#B9A51E</color>
+    <color name="kline_pma20">#C81E5E</color>
+    <color name="kline_pma30">#0099BD</color>
+    <color name="kline_macd">#C81E5E</color>
+    <color name="kline_dif">#AEAAA9</color>
+    <color name="kline_dea">#B9A51E</color>
+    <color name="kline_k">#ffffffff</color>
+    <color name="kline_d">#B9A51E</color>
+    <color name="kline_j">#C81E5E</color>
+    <color name="qqwhite">#F8FCF8</color>
+</resources>
